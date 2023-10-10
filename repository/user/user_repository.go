@@ -8,8 +8,8 @@ import (
 
 type UserRepository interface {
 	Get() ([]model.User, error)
-	GetById(id uint) (model.User, error)
-	GetByEmail(email string) (model.User, error)
+	GetById(id uint) (*model.User, error)
+	GetByEmail(email string) (*model.User, error)
 	Create(data *model.User) error
 	Update(id uint, data *map[string]interface{}) error
 	Delete(id uint) error
@@ -34,26 +34,26 @@ func (u *userRepository) Get() ([]model.User, error) {
 	return users, nil
 }
 
-func (u *userRepository) GetById(id uint) (model.User, error) {
+func (u *userRepository) GetById(id uint) (*model.User, error) {
 	var user model.User
 
 	tx := u.db.Where("id = ?", id).First(&user)
 	if tx.Error != nil {
-		return model.User{}, tx.Error
+		return &model.User{}, tx.Error
 	}
 
-	return user, nil
+	return &user, nil
 }
 
-func (u *userRepository) GetByEmail(email string) (model.User, error) {
+func (u *userRepository) GetByEmail(email string) (*model.User, error) {
 	var user model.User
 
 	tx := u.db.Where("email = ?", email).First(&user)
 	if tx.Error != nil {
-		return model.User{}, nil
+		return &model.User{}, nil
 	}
 
-	return user, nil
+	return &user, nil
 }
 
 func (u *userRepository) Create(data *model.User) error {

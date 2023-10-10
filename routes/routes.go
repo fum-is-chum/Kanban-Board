@@ -2,8 +2,8 @@ package routes
 
 import (
 	controller "kanban-board/controllers"
-	"kanban-board/repository"
-	"kanban-board/usecase"
+	userRepo "kanban-board/repository/user"
+	userUsecase "kanban-board/usecase/user"
 
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
@@ -12,10 +12,10 @@ import (
 func InitRouter(e *echo.Echo, db *gorm.DB) {
 
 	// Users
-	userRepo := repository.NewUserRepository(db)
-	userService := usecase.NewUserUseCase(userRepo)
+	userRepo := userRepo.NewUserRepository(db)
+	userService := userUsecase.NewUserUseCase(userRepo)
 	userController := controller.NewUserController(userService)
-	
+
 	userGroup := e.Group("/users")
 	userGroup.GET("", userController.GetUsers)
 	userGroup.GET("/:id", userController.GetUser)
