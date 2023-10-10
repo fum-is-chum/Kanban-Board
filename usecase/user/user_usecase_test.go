@@ -312,9 +312,10 @@ func TestLogin(t *testing.T) {
 		mockRepo.On("GetByEmail", expectedUser.Email).Return(expectedUser, nil).Once()
 
 		userUseCase := NewUserUseCase(mockRepo)
-		err := userUseCase.Login(expectedUser.Email, "123")
+		token, err := userUseCase.Login(expectedUser.Email, "123")
 
 		assert.NoError(t, err)
+		assert.NotEqual(t, token, "")
 		mockRepo.AssertExpectations(t)
 	})
 
@@ -325,9 +326,10 @@ func TestLogin(t *testing.T) {
 		mockRepo.On("GetByEmail", "doe@gmail.com").Return(nil, expectedErr).Once()
 
 		userUseCase := NewUserUseCase(mockRepo)
-		err := userUseCase.Login("doe@gmail.com", "123")
+		token, err := userUseCase.Login("doe@gmail.com", "123")
 
 		assert.Error(t, err)
+		assert.Equal(t, token, "")
 		mockRepo.AssertExpectations(t)
 	})
 
@@ -337,9 +339,10 @@ func TestLogin(t *testing.T) {
 		mockRepo.On("GetByEmail", expectedUser.Email).Return(expectedUser, nil).Once()
 
 		userUseCase := NewUserUseCase(mockRepo)
-		err := userUseCase.Login(expectedUser.Email, "12345")
+		token, err := userUseCase.Login(expectedUser.Email, "12345")
 
 		assert.Error(t, err)
+		assert.Equal(t, token, "")
 		mockRepo.AssertExpectations(t)
 	})
 }
