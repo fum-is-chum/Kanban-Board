@@ -4,6 +4,7 @@ import (
 	controller "kanban-board/controllers"
 	m "kanban-board/middlewares"
 	userRepo "kanban-board/repository/user"
+	authUsecase "kanban-board/usecase/auth"
 	userUsecase "kanban-board/usecase/user"
 
 	"github.com/labstack/echo/v4"
@@ -15,8 +16,14 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 	// logger middleware
 	m.LoggerMiddleware(e)
 
-	// Users
+	// Login
 	userRepo := userRepo.NewUserRepository(db)
+	authService := authUsecase.NewAuthUseCase(userRepo)
+	authController := controller.NewAuthController(authService)
+
+	e.POST("/login", authController.Login)
+
+	// Users
 	userService := userUsecase.NewUserUseCase(userRepo)
 	userController := controller.NewUserController(userService)
 

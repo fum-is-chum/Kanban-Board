@@ -3,7 +3,6 @@ package usecase
 import (
 	"errors"
 	"kanban-board/dto"
-	bcrypt "kanban-board/helpers/bcrypt"
 	"kanban-board/model"
 	userRepo "kanban-board/repository/user"
 	"testing"
@@ -81,7 +80,7 @@ func TestCreateUser(t *testing.T) {
 		mockRepo := userRepo.NewMockUserRepo()
 		service := NewUserUseCase(mockRepo)
 		err := service.CreateUser(&data)
-		assert.NotEqual(t, err, nil)
+		assert.NotNil(t, err)
 	})
 
 	t.Run("Failed Create User missing email", func(t *testing.T) {
@@ -94,7 +93,7 @@ func TestCreateUser(t *testing.T) {
 		mockRepo := userRepo.NewMockUserRepo()
 		service := NewUserUseCase(mockRepo)
 		err := service.CreateUser(&data)
-		assert.NotEqual(t, err, nil)
+		assert.NotNil(t, err)
 	})
 
 	t.Run("Failed Create User missing password", func(t *testing.T) {
@@ -107,7 +106,7 @@ func TestCreateUser(t *testing.T) {
 		mockRepo := userRepo.NewMockUserRepo()
 		service := NewUserUseCase(mockRepo)
 		err := service.CreateUser(&data)
-		assert.NotEqual(t, err, nil)
+		assert.NotNil(t, err)
 	})
 }
 
@@ -293,56 +292,6 @@ func TestDeleteUser(t *testing.T) {
 		err := userUseCase.DeleteUser(toDeleteUser.ID)
 
 		assert.Error(t, err)
-		mockRepo.AssertExpectations(t)
-	})
-}
-
-func TestLogin(t *testing.T) {
-	hashedPass, err := bcrypt.HashPassword("123")
-	assert.NoError(t, err)
-
-	expectedUser := &model.User{
-		Model:    gorm.Model{ID: 3},
-		Name:     "Alvin Christ Ardiansyah",
-		Email:    "alvinardiansyah2002@gmail.com",
-		Password: hashedPass,
-	}
-	t.Run("Sucess Login", func(t *testing.T) {
-		mockRepo := userRepo.NewMockUserRepo()
-		mockRepo.On("GetByEmail", expectedUser.Email).Return(expectedUser, nil).Once()
-
-		userUseCase := NewUserUseCase(mockRepo)
-		token, err := userUseCase.Login(expectedUser.Email, "123")
-
-		assert.NoError(t, err)
-		assert.NotEqual(t, token, "")
-		mockRepo.AssertExpectations(t)
-	})
-
-	t.Run("Failed Login (email not found)", func(t *testing.T) {
-		mockRepo := userRepo.NewMockUserRepo()
-		expectedErr := errors.New("Email not found")
-
-		mockRepo.On("GetByEmail", "doe@gmail.com").Return(nil, expectedErr).Once()
-
-		userUseCase := NewUserUseCase(mockRepo)
-		token, err := userUseCase.Login("doe@gmail.com", "123")
-
-		assert.Error(t, err)
-		assert.Equal(t, token, "")
-		mockRepo.AssertExpectations(t)
-	})
-
-	t.Run("Failed LOgin (password invalid)", func(t *testing.T) {
-		mockRepo := userRepo.NewMockUserRepo()
-
-		mockRepo.On("GetByEmail", expectedUser.Email).Return(expectedUser, nil).Once()
-
-		userUseCase := NewUserUseCase(mockRepo)
-		token, err := userUseCase.Login(expectedUser.Email, "12345")
-
-		assert.Error(t, err)
-		assert.Equal(t, token, "")
 		mockRepo.AssertExpectations(t)
 	})
 }

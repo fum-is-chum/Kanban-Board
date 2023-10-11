@@ -4,7 +4,6 @@ import (
 	"errors"
 	"kanban-board/dto"
 	bcrypt "kanban-board/helpers/bcrypt"
-	"kanban-board/middlewares"
 	"kanban-board/model"
 	repository "kanban-board/repository/user"
 	"reflect"
@@ -20,7 +19,6 @@ type UserUseCase interface {
 	CreateUser(data *dto.UserRequest) error
 	UpdateUser(id uint, data *dto.UserRequest) error
 	DeleteUser(id uint) error
-	Login(email string, password string) (string, error)
 }
 
 type userUseCase struct {
@@ -120,24 +118,4 @@ func (u *userUseCase) DeleteUser(id uint) error {
 	}
 
 	return nil
-}
-
-func (u *userUseCase) Login(email string, password string) (string, error) {
-	// find user by email
-	user, err := u.userRepo.GetByEmail(email);
-	if err != nil {
-		return "", err
-	}
-
-	// validate password
-	if err := bcrypt.VerifyPassword(user.Password, password); err != nil {
-		return "", err
-	}
-
-	token, err := middlewares.CreateToken(user.ID)
-	if err != nil {
-		return "", err
-	}
-	
-	return token, nil
 }
