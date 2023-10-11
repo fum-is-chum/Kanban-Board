@@ -19,7 +19,6 @@ type UserUseCase interface {
 	CreateUser(data *dto.UserRequest) error
 	UpdateUser(id uint, data *dto.UserRequest) error
 	DeleteUser(id uint) error
-	Login(email string, password string) error
 }
 
 type userUseCase struct {
@@ -115,21 +114,6 @@ func (u *userUseCase) UpdateUser(id uint, data *dto.UserRequest) error {
 
 func (u *userUseCase) DeleteUser(id uint) error {
 	if err := u.userRepo.Delete(id); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (u *userUseCase) Login(email string, password string) error {
-	// find user by email
-	user, err := u.userRepo.GetByEmail(email);
-	if err != nil {
-		return err
-	}
-
-	// validate password
-	if err := bcrypt.VerifyPassword(user.Password, password); err != nil {
 		return err
 	}
 
