@@ -57,7 +57,7 @@ func (u *userUseCase) GetUsers() ([]model.User, error) {
 func (u *userUseCase) GetUserById(id uint) (*model.User, error) {
 	user, err := u.userRepo.GetById(id)
 	if err != nil {
-		return &model.User{}, err
+		return nil, err
 	}
 
 	return user, nil
@@ -89,7 +89,6 @@ func (u *userUseCase) UpdateUser(id uint, data *dto.UserRequest) error {
 		key := structValue.Type().Field(i).Name
 		value := structValue.Field(i).Interface()
 
-		// Check if the field is updated (non-empty) and not an empty string
 		if value != nil && value != "" {
 			if key == "Email" {
 				if err := validate.Var(value, "email"); err != nil {

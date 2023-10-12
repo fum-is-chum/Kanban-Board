@@ -7,4 +7,5 @@ type User struct {
 	Name     string `json:"name"`
 	Email    string `json:"email" gorm:"unique"`
 	Password string `json:"password"`
+	Boards   []Board `json:"boards" gorm:"foreignkey:OwnerID;constraint:OnDelete:CASCADE;"`
 }

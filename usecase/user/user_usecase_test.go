@@ -21,22 +21,24 @@ func TestGetUsers(t *testing.T) {
 	t.Run("Sucess Get Users", func(t *testing.T) {
 		mockRepo := userRepo.NewMockUserRepo()
 		mockRepo.On("Get", mock.Anything).Return(returnData, nil).Once()
-		service := NewUserUseCase(mockRepo)
 
+		service := NewUserUseCase(mockRepo)
 		res, err := service.GetUsers()
+
 		assert.NoError(t, err)
 		assert.Equal(t, len(returnData), len(res))
 		assert.Equal(t, returnData[0].Name, res[0].Name)
 		mockRepo.AssertExpectations(t)
 	})
 
-	t.Run("Error Get Users", func(t *testing.T) {
+	t.Run("Failed Get Users", func(t *testing.T) {
 		mockRepo := userRepo.NewMockUserRepo()
 		expectedErr := errors.New("internal server error") // Define the expected error
 		mockRepo.On("Get", mock.Anything).Return(nil, expectedErr).Once()
-		service := NewUserUseCase(mockRepo)
 
+		service := NewUserUseCase(mockRepo)
 		res, err := service.GetUsers()
+
 		assert.Error(t, err)
 		assert.Nil(t, res) // No users should be returned in case of an error
 		assert.Equal(t, expectedErr, err)
@@ -59,19 +61,18 @@ func TestCreateUser(t *testing.T) {
 		mockRepo.On("Create", mock.MatchedBy(func(u *model.User) bool {
 			return u.Name == user.Name &&
 				u.Email == user.Email
-		})).Return(nil)
+		})).Return(nil).Once()
 
 		service := NewUserUseCase(mockRepo)
 		err = service.CreateUser(&data)
 
-		assert.Equal(t, err, nil)
-
+		assert.NoError(t, err)
 		// Use userData when asserting the Create method is called
 		mockRepo.AssertExpectations(t)
 	})
 
-	t.Run("Failed Create User missing name", func(t *testing.T) {
-		data := dto.UserRequest{
+	t.Run("Failed Create User (Missing User Name)", func(t *testing.T) {
+		data := &dto.UserRequest{
 			Name:     "",
 			Email:    "alvinardiansyah2002@gmail.com",
 			Password: "123",
@@ -79,8 +80,8 @@ func TestCreateUser(t *testing.T) {
 
 		mockRepo := userRepo.NewMockUserRepo()
 		service := NewUserUseCase(mockRepo)
-		err := service.CreateUser(&data)
-		assert.NotNil(t, err)
+		err := service.CreateUser(data)
+		assert.Error(t, err)
 	})
 
 	t.Run("Failed Create User missing email", func(t *testing.T) {
@@ -129,8 +130,8 @@ func TestUpdateUser(t *testing.T) {
 		mockRepo := userRepo.NewMockUserRepo()
 		mockRepo.On("Update", userToUpdate.ID, updateMap).Return(nil).Once()
 
-		userUseCase := NewUserUseCase(mockRepo)
-		err := userUseCase.UpdateUser(userToUpdate.ID, userRequest)
+		service := NewUserUseCase(mockRepo)
+		err := service.UpdateUser(userToUpdate.ID, userRequest)
 
 		assert.NoError(t, err)
 		mockRepo.AssertExpectations(t)
@@ -141,13 +142,10 @@ func TestUpdateUser(t *testing.T) {
 			Name: "",
 		}
 
-		updateMap := &map[string]interface{}{}
-
 		mockRepo := userRepo.NewMockUserRepo()
-		mockRepo.On("Update", userToUpdate.ID, updateMap).Return(nil).Once()
 
-		userUseCase := NewUserUseCase(mockRepo)
-		err := userUseCase.UpdateUser(userToUpdate.ID, userRequest)
+		service := NewUserUseCase(mockRepo)
+		err := service.UpdateUser(userToUpdate.ID, userRequest)
 
 		assert.Error(t, err)
 	})
@@ -164,8 +162,8 @@ func TestUpdateUser(t *testing.T) {
 		mockRepo := userRepo.NewMockUserRepo()
 		mockRepo.On("Update", userToUpdate.ID, updateMap).Return(nil).Once()
 
-		userUseCase := NewUserUseCase(mockRepo)
-		err := userUseCase.UpdateUser(userToUpdate.ID, userRequest)
+		service := NewUserUseCase(mockRepo)
+		err := service.UpdateUser(userToUpdate.ID, userRequest)
 
 		assert.NoError(t, err)
 		mockRepo.AssertExpectations(t)
@@ -177,8 +175,8 @@ func TestUpdateUser(t *testing.T) {
 		}
 
 		mockRepo := userRepo.NewMockUserRepo()
-		userUseCase := NewUserUseCase(mockRepo)
-		err := userUseCase.UpdateUser(userToUpdate.ID, userRequest)
+		service := NewUserUseCase(mockRepo)
+		err := service.UpdateUser(userToUpdate.ID, userRequest)
 
 		assert.Error(t, err)
 	})
@@ -189,8 +187,8 @@ func TestUpdateUser(t *testing.T) {
 		}
 
 		mockRepo := userRepo.NewMockUserRepo()
-		userUseCase := NewUserUseCase(mockRepo)
-		err := userUseCase.UpdateUser(userToUpdate.ID, userRequest)
+		service := NewUserUseCase(mockRepo)
+		err := service.UpdateUser(userToUpdate.ID, userRequest)
 
 		assert.Error(t, err)
 	})
@@ -207,8 +205,8 @@ func TestUpdateUser(t *testing.T) {
 		mockRepo := userRepo.NewMockUserRepo()
 		mockRepo.On("Update", userToUpdate.ID, updateMap).Return(nil).Once()
 
-		userUseCase := NewUserUseCase(mockRepo)
-		err := userUseCase.UpdateUser(userToUpdate.ID, userRequest)
+		service := NewUserUseCase(mockRepo)
+		err := service.UpdateUser(userToUpdate.ID, userRequest)
 
 		assert.NoError(t, err)
 		mockRepo.AssertExpectations(t)
@@ -224,8 +222,8 @@ func TestUpdateUser(t *testing.T) {
 		mockRepo := userRepo.NewMockUserRepo()
 		mockRepo.On("Update", userToUpdate.ID, updateMap).Return(nil).Once()
 
-		userUseCase := NewUserUseCase(mockRepo)
-		err := userUseCase.UpdateUser(userToUpdate.ID, userRequest)
+		service := NewUserUseCase(mockRepo)
+		err := service.UpdateUser(userToUpdate.ID, userRequest)
 
 		assert.Error(t, err)
 	})
@@ -243,10 +241,11 @@ func TestGetUserById(t *testing.T) {
 		mockRepo := userRepo.NewMockUserRepo()
 		mockRepo.On("GetById", expectedUser.ID).Return(expectedUser, nil).Once()
 
-		userUseCase := NewUserUseCase(mockRepo)
-		user, err := userUseCase.GetUserById(expectedUser.ID)
+		service := NewUserUseCase(mockRepo)
+		user, err := service.GetUserById(expectedUser.ID)
 
 		assert.NoError(t, err)
+		assert.NotNil(t, user)
 		assert.Equal(t, user.Email, expectedUser.Email)
 		mockRepo.AssertExpectations(t)
 	})
@@ -254,12 +253,13 @@ func TestGetUserById(t *testing.T) {
 	t.Run("Failed Get User By Id (ID not found)", func(t *testing.T) {
 		mockRepo := userRepo.NewMockUserRepo()
 		expectedErr := errors.New("internal server error") // Define the expected error
-		mockRepo.On("GetById", uint(9)).Return(nil, expectedErr).Once()
+		mockRepo.On("GetById", mock.Anything).Return(nil, expectedErr).Once()
 
-		userUseCase := NewUserUseCase(mockRepo)
-		_, err := userUseCase.GetUserById(uint(9))
+		service := NewUserUseCase(mockRepo)
+		user, err := service.GetUserById(uint(9))
 
 		assert.Error(t, err)
+		assert.Nil(t, user)
 		mockRepo.AssertExpectations(t)
 	})
 }
@@ -275,8 +275,8 @@ func TestDeleteUser(t *testing.T) {
 		mockRepo := userRepo.NewMockUserRepo()
 		mockRepo.On("Delete", toDeleteUser.ID).Return(nil).Once()
 
-		userUseCase := NewUserUseCase(mockRepo)
-		err := userUseCase.DeleteUser(toDeleteUser.ID)
+		service := NewUserUseCase(mockRepo)
+		err := service.DeleteUser(toDeleteUser.ID)
 
 		assert.NoError(t, err)
 		mockRepo.AssertExpectations(t)
@@ -288,8 +288,8 @@ func TestDeleteUser(t *testing.T) {
 
 		mockRepo.On("Delete", toDeleteUser.ID).Return(expectedErr).Once()
 
-		userUseCase := NewUserUseCase(mockRepo)
-		err := userUseCase.DeleteUser(toDeleteUser.ID)
+		service := NewUserUseCase(mockRepo)
+		err := service.DeleteUser(toDeleteUser.ID)
 
 		assert.Error(t, err)
 		mockRepo.AssertExpectations(t)
