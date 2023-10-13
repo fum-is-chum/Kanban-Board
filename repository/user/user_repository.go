@@ -74,7 +74,7 @@ func (u *userRepository) Update(id uint, data *map[string]interface{}) error {
 }
 
 func (u *userRepository) Delete(id uint) error {
-	if err := u.db.Delete(&model.User{}, id).Error; err != nil {
+	if err := u.db.Unscoped().Delete(&model.User{}, id).Error; err != nil {
 		return err
 	}
 	return nil

@@ -62,7 +62,7 @@ func (b *boardRepository) Update(id uint, data *map[string]interface{}) error {
 }
 
 func (b *boardRepository) Delete(id uint) error {
-	if err := b.db.Delete(&model.Board{}, id).Error; err != nil {
+	if err := b.db.Unscoped().Delete(&model.Board{}, id).Error; err != nil {
 		return err
 	}
 
