@@ -19,7 +19,7 @@ type BoardUseCase interface {
 	CreateBoard(data *dto.BoardRequest) error
 	UpdateBoard(id uint, data *dto.BoardRequest) error
 	UpdateBoardOwnership(boardId uint, ownerId uint) error
-	DeleteBoard(id uint) error
+	DeleteBoard(id uint, issuingUserId uint) error
 }
 
 type boardUseCase struct {
@@ -118,7 +118,17 @@ func (b *boardUseCase) UpdateBoardOwnership(boardId uint, ownerId uint) error {
 	return nil
 }
 
-func (b *boardUseCase) DeleteBoard(id uint) error {
+func (b *boardUseCase) DeleteBoard(id uint, issuingUserId uint) error {
+	// ensure user cannot delete other user's board
+	board, err := b.boardRepo.GetById(id)
+	if err != nil {
+		return err
+	}
+
+	if board.OwnerID != issuingUserId {
+		return errors.New("User only can delete board they owned!")
+	}
+
 	if err := b.boardRepo.Delete(id); err != nil {
 		return err
 	}

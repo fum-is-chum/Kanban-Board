@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"kanban-board/dto"
 	responseHelper "kanban-board/helpers/response"
+	m "kanban-board/middlewares"
 	boardUsecase "kanban-board/usecase/board"
 	"net/http"
 	"strconv"
@@ -113,7 +114,9 @@ func (b *boardController) DeleteBoard(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, responseHelper.FailedResponse("Bad Request: Invalid Id"))
 	}
 
-	if err := b.useCase.DeleteBoard(uint(id)); err != nil {
+	userId := m.ExtractTokenUserId(c)
+
+	if err := b.useCase.DeleteBoard(uint(id), uint(userId)); err != nil {
 		return c.JSON(http.StatusInternalServerError, responseHelper.FailedResponse(fmt.Sprintf("Error: %s", err.Error())))
 	}
 
