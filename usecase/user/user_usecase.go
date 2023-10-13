@@ -30,13 +30,13 @@ func NewUserUseCase(userRepo repository.UserRepository) *userUseCase {
 }
 
 // ---------------- utility -------------------
-func createUserRequestToUser(data *dto.UserRequest) (model.User, error) {
+func createUserRequestToUserModel(data *dto.UserRequest) (*model.User, error) {
 	hash, err := bcrypt.HashPassword(data.Password)
-	if err != nil {
-		return model.User{}, errors.New("Hash password failed")
+	if err != nil || data.Password == "" {
+		return nil, errors.New("Hash password failed")
 	}
 
-	return model.User{
+	return &model.User{
 		Name:     data.Name,
 		Email:    data.Email,
 		Password: hash,
@@ -70,12 +70,12 @@ func (u *userUseCase) CreateUser(data *dto.UserRequest) error {
 		return err
 	}
 
-	user, err := createUserRequestToUser(data)
+	user, err := createUserRequestToUserModel(data)
 	if err != nil {
 		return err
 	}
 
-	if err := u.userRepo.Create(&user); err != nil {
+	if err := u.userRepo.Create(user); err != nil {
 		return err
 	}
 	return nil
