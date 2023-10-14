@@ -5,7 +5,6 @@ import (
 	"kanban-board/dto"
 	"kanban-board/model"
 	boardRepo "kanban-board/repository/board"
-	userRepo "kanban-board/repository/user"
 	"reflect"
 
 	"github.com/go-playground/validator/v10"
@@ -18,21 +17,19 @@ type BoardUseCase interface {
 	GetBoardById(id uint) (*model.Board, error)
 	CreateBoard(data *dto.BoardRequest) error
 	UpdateBoard(id uint, data *dto.BoardRequest) error
-	UpdateBoardOwnership(boardId uint, ownerId uint) error
-	DeleteBoard(id uint, issuingUserId uint) error
+	DeleteBoard(id uint, issuerUserId uint) error
 }
 
 type boardUseCase struct {
-	userRepo  userRepo.UserRepository
-	boardRepo boardRepo.BoardRepository
+	repo boardRepo.BoardRepository
 }
 
-func NewBoardUseCase(userRepo userRepo.UserRepository, boardRepo boardRepo.BoardRepository) *boardUseCase {
-	return &boardUseCase{userRepo, boardRepo}
+func NewBoardUseCase(repo boardRepo.BoardRepository) *boardUseCase {
+	return &boardUseCase{repo}
 }
 
 func (b *boardUseCase) GetBoards() ([]model.Board, error) {
-	boards, err := b.boardRepo.Get()
+	boards, err := b.repo.Get()
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +38,7 @@ func (b *boardUseCase) GetBoards() ([]model.Board, error) {
 }
 
 func (b *boardUseCase) GetBoardById(id uint) (*model.Board, error) {
-	board, err := b.boardRepo.GetById(id)
+	board, err := b.repo.GetById(id)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +58,7 @@ func (b *boardUseCase) CreateBoard(data *dto.BoardRequest) error {
 		OwnerID: data.OwnerID,
 	}
 
-	if err := b.boardRepo.Create(boardModel); err != nil {
+	if err := b.repo.Create(boardModel); err != nil {
 		return err
 	}
 
@@ -89,47 +86,25 @@ func (b *boardUseCase) UpdateBoard(id uint, data *dto.BoardRequest) error {
 		return errors.New("No fields to update or fields value is empty!")
 	}
 
-	if err := b.boardRepo.Update(id, &updates); err != nil {
+	if err := b.repo.Update(id, &updates); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (b *boardUseCase) UpdateBoardOwnership(boardId uint, ownerId uint) error {
-	// check board exist or not
-	if _, err := b.boardRepo.GetById(boardId); err != nil {
-		return err
-	}
-
-	// check user exist or not
-	if _, err := b.userRepo.GetById(ownerId); err != nil {
-		return err
-	}
-
-	updateMap := &map[string]interface{}{
-		"OwnerID": ownerId,
-	}
-
-	if err := b.boardRepo.Update(boardId, updateMap); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (b *boardUseCase) DeleteBoard(id uint, issuingUserId uint) error {
+func (b *boardUseCase) DeleteBoard(id uint, issuerUserId uint) error {
 	// ensure user cannot delete other user's board
-	board, err := b.boardRepo.GetById(id)
+	board, err := b.repo.GetById(id)
 	if err != nil {
 		return err
 	}
 
-	if board.OwnerID != issuingUserId {
+	if board.OwnerID != issuerUserId {
 		return errors.New("User only can delete board they owned!")
 	}
 
-	if err := b.boardRepo.Delete(id); err != nil {
+	if err := b.repo.Delete(id); err != nil {
 		return err
 	}
 

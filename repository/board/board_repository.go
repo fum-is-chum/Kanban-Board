@@ -49,6 +49,22 @@ func (b *boardRepository) Create(data *model.Board) error {
 		return err
 	}
 
+	// add user as member
+	var user model.User
+	var board model.Board
+
+	if err := b.db.First(&user, data.OwnerID).Error; err != nil {
+		return err
+	}
+
+	if err := b.db.First(&board, data.ID).Error; err != nil {
+		return err
+	}
+
+	if err := b.db.Model(&board).Association("Members").Append(&user); err != nil {
+		return err
+	}
+	
 	return nil
 }
 
@@ -62,7 +78,7 @@ func (b *boardRepository) Update(id uint, data *map[string]interface{}) error {
 }
 
 func (b *boardRepository) Delete(id uint) error {
-	if err := b.db.Delete(&model.Board{}, id).Error; err != nil {
+	if err := b.db.Unscoped().Delete(&model.Board{}, id).Error; err != nil {
 		return err
 	}
 
