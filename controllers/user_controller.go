@@ -56,10 +56,22 @@ func (u *userController) GetUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, responseHelper.FailedResponse(fmt.Sprintf("Error on fetching user with id %d", id)))
 	}
 
+	var userBoards []dto.BoardResponse
+
+	for _, board := range user.Boards {
+		userBoards = append(userBoards, dto.BoardResponse{
+			Id:      board.ID,
+			Name:    board.Name,
+			Desc:    board.Desc,
+			OwnerID: board.OwnerID,
+		})
+	}
+
 	return c.JSON(http.StatusOK, responseHelper.SuccessWithDataResponse(fmt.Sprintf("Sucess fetch user with id %d", id), dto.UserResponse{
 		Id:        user.ID,
 		Name:      user.Name,
 		Email:     user.Email,
+		Boards:    userBoards,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 	}))
@@ -72,7 +84,7 @@ func (u *userController) CreateUser(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, responseHelper.FailedResponse(fmt.Sprintf("Bad Request: %s", err.Error())))
 	}
 
-	err :=	u.useCase.CreateUser(&payload)
+	err := u.useCase.CreateUser(&payload)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, responseHelper.FailedResponse(fmt.Sprintf("Error: %s", err.Error())))
 	}
