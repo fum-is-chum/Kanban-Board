@@ -59,10 +59,16 @@ func (u *userController) GetUser(c echo.Context) error {
 
 	for _, board := range user.MemberOf {
 		memberOf = append(memberOf, dto.BoardResponse{
-			Id:      board.ID,
-			Name:    board.Name,
-			Desc:    board.Desc,
-			OwnerID: board.OwnerID,
+			Id:   board.ID,
+			Name: board.Name,
+			Desc: board.Desc,
+			Owner: dto.MemberResponse{
+				Id:        board.Owner.ID,
+				Name:      board.Owner.Name,
+				Email:     board.Owner.Email,
+				CreatedAt: board.Owner.CreatedAt,
+				UpdatedAt: board.Owner.UpdatedAt,
+			},
 		})
 	}
 

@@ -25,7 +25,7 @@ func NewBoardRepository(db *gorm.DB) *boardRepository {
 func (b *boardRepository) Get() ([]model.Board, error) {
 	var boards []model.Board
 
-	tx := b.db.Order("created_at desc").Find(&boards)
+	tx := b.db.Preload("Owner").Order("created_at desc").Find(&boards)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
@@ -36,7 +36,7 @@ func (b *boardRepository) Get() ([]model.Board, error) {
 func (b *boardRepository) GetById(id uint) (*model.Board, error) {
 	var board model.Board
 
-	tx := b.db.Where("id = ?", id).First(&board)
+	tx := b.db.Preload("Owner").Preload("Members").Where("id = ?", id).First(&board)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}
