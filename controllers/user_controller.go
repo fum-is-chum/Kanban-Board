@@ -55,18 +55,8 @@ func (u *userController) GetUser(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, responseHelper.FailedResponse(fmt.Sprintf("Error on fetching user with id %d", id)))
 	}
 
-	var userBoards []dto.BoardResponse
 	var memberOf []dto.BoardResponse
 
-	for _, board := range user.Boards {
-		userBoards = append(userBoards, dto.BoardResponse{
-			Id:      board.ID,
-			Name:    board.Name,
-			Desc:    board.Desc,
-			OwnerID: board.OwnerID,
-		})
-	}
-	
 	for _, board := range user.MemberOf {
 		memberOf = append(memberOf, dto.BoardResponse{
 			Id:      board.ID,
@@ -80,7 +70,6 @@ func (u *userController) GetUser(c echo.Context) error {
 		Id:        user.ID,
 		Name:      user.Name,
 		Email:     user.Email,
-		Boards:    userBoards,
 		MemberOf:  memberOf,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,

@@ -52,7 +52,6 @@ func TestGetUserById(t *testing.T) {
 		Name:     "Alvin Christ Ardiansyah",
 		Email:    "alvinardiansyah2002@gmail.com",
 		Password: "123",
-		Boards:   []model.Board{},
 		MemberOf: []model.Board{},
 	}
 
