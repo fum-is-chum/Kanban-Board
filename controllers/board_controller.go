@@ -90,24 +90,6 @@ func (b *boardController) UpdateBoard(c echo.Context) error {
 	return c.JSON(http.StatusOK, responseHelper.SuccessResponse("Success update board"))
 }
 
-func (b *boardController) UpdateBoardOwner(c echo.Context) error {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, responseHelper.FailedResponse("Bad Request: Invalid Id"))
-	}
-
-	var payload dto.BoardRequest
-	if err := c.Bind(&payload); err != nil {
-		return c.JSON(http.StatusBadRequest, responseHelper.FailedResponse(fmt.Sprintf("Bad Request: %s", err.Error())))
-	}
-
-	if err := b.useCase.UpdateBoardOwnership(uint(id), uint(payload.OwnerID)); err != nil {
-		return c.JSON(http.StatusInternalServerError, responseHelper.FailedResponse(fmt.Sprintf("Error: %s", err.Error())))
-	}
-	
-	return c.JSON(http.StatusOK, responseHelper.SuccessResponse("Success update board owner"))
-}
-
 func (b *boardController) DeleteBoard(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
