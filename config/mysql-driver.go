@@ -25,5 +25,9 @@ func InitMyqlConn(config *AppConfig) *gorm.DB {
 }
 
 func Migrate(db *gorm.DB) {
-	db.AutoMigrate(&model.User{}, &model.Board{})
+	db.AutoMigrate(&model.User{
+		Name: "alvin",
+		Email: "alvin@gmail.com",
+		Password: "alvin123",
+	}, &model.Board{})
 }
