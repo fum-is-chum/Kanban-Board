@@ -6,6 +6,7 @@ import (
 	"github.com/stretchr/testify/mock"
 )
 
+
 type mockBoardRepository struct {
 	mock.Mock
 }

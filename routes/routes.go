@@ -4,9 +4,11 @@ import (
 	controller "kanban-board/controllers"
 	m "kanban-board/middlewares"
 	boardRepo "kanban-board/repository/board"
+	boardMemberRepo "kanban-board/repository/board_member"
 	userRepo "kanban-board/repository/user"
 	authUsecase "kanban-board/usecase/auth"
 	boardUsecase "kanban-board/usecase/board"
+	boardMemberUsecase "kanban-board/usecase/board_member"
 	userUsecase "kanban-board/usecase/user"
 
 	"github.com/labstack/echo/v4"
@@ -22,16 +24,23 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 	// Repos
 	userRepo := userRepo.NewUserRepository(db)
 	boardRepo := boardRepo.NewBoardRepository(db)
+	boardMemberRepo := boardMemberRepo.NewBoardMemberRepostory(db)
 
 	// Services
 	authService := authUsecase.NewAuthUseCase(userRepo)
 	userService := userUsecase.NewUserUseCase(userRepo)
 	boardService := boardUsecase.NewBoardUseCase(userRepo, boardRepo)
+	boardMemberService := boardMemberUsecase.NewBoardMemberUseCase(&boardMemberUsecase.BoardMemberMultiRepos{
+		UserRepo: userRepo,
+		BoardRepo: boardRepo,
+		MemberRepo: boardMemberRepo,
+	})
 
 	// Controllers
 	authController := controller.NewAuthController(authService)
 	userController := controller.NewUserController(userService)
 	boardController := controller.NewBoardController(boardService)
+	boardMemberController := controller.NewBoardMemberController(boardMemberService)
 	// -------------------------------------------------------------------------------
 
 	// Login
@@ -52,4 +61,9 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 	boardGroup.POST("", boardController.CreateBoard, m.JWTMiddleware())
 	boardGroup.PATCH("/:id", boardController.UpdateBoard, m.JWTMiddleware())
 	boardGroup.DELETE("/:id", boardController.DeleteBoard, m.JWTMiddleware())
+
+	// Board Member
+	boardMemberGroup := e.Group("/board-members")
+	boardMemberGroup.POST("/add", boardMemberController.AddNewMember, m.JWTMiddleware())
+	boardMemberGroup.POST("/remove", boardMemberController.DeleteMember, m.JWTMiddleware())
 }
