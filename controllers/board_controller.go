@@ -29,10 +29,16 @@ func (b *boardController) GetBoards(c echo.Context) error {
 	var response []dto.BoardResponse
 	for _, value := range boards {
 		response = append(response, dto.BoardResponse{
-			Id:      value.ID,
-			Name:    value.Name,
-			Desc:    value.Desc,
-			OwnerID: value.OwnerID,
+			Id:    value.ID,
+			Name:  value.Name,
+			Desc:  value.Desc,
+			Owner: dto.MemberResponse{
+				Id:        value.Owner.ID,
+				Name:      value.Owner.Name,
+				Email:     value.Owner.Email,
+				CreatedAt: value.Owner.CreatedAt,
+				UpdatedAt: value.Owner.UpdatedAt,
+			},
 		})
 	}
 
@@ -50,11 +56,28 @@ func (b *boardController) GetBoardById(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, responseHelper.FailedResponse(fmt.Sprintf("Error: %s", err.Error())))
 	}
 
+	var members []dto.MemberResponse
+	for _, value := range board.Members {
+		members = append(members, dto.MemberResponse{
+			Id:        value.ID,
+			Name:      value.Name,
+			Email:     value.Email,
+			CreatedAt: value.CreatedAt,
+			UpdatedAt: value.UpdatedAt,
+		})
+	}
 	return c.JSON(http.StatusOK, responseHelper.SuccessWithDataResponse(fmt.Sprintf("Success get board with id %d", id), dto.BoardResponse{
-		Id: board.ID,
+		Id:   board.ID,
 		Name: board.Name,
 		Desc: board.Desc,
-		OwnerID: board.OwnerID,
+		Owner: dto.MemberResponse{
+			Id:        board.Owner.ID,
+			Name:      board.Owner.Name,
+			Email:     board.Owner.Email,
+			CreatedAt: board.Owner.CreatedAt,
+			UpdatedAt: board.Owner.UpdatedAt,
+		},
+		Members: members,
 	}))
 }
 
