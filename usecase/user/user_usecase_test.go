@@ -31,7 +31,7 @@ func TestGetUsers(t *testing.T) {
 		mockRepo.AssertExpectations(t)
 	})
 
-	t.Run("Failed Get Users", func(t *testing.T) {
+	t.Run("Failed Get Users (Internal Server Error)", func(t *testing.T) {
 		mockRepo := userRepo.NewMockUserRepo()
 		expectedErr := errors.New("internal server error") // Define the expected error
 		mockRepo.On("Get", mock.Anything).Return(nil, expectedErr).Once()
@@ -46,15 +46,65 @@ func TestGetUsers(t *testing.T) {
 	})
 }
 
+func TestGetUserById(t *testing.T) {
+	expectedUser := &model.User{
+		Model:    gorm.Model{ID: 3},
+		Name:     "Alvin Christ Ardiansyah",
+		Email:    "alvinardiansyah2002@gmail.com",
+		Password: "123",
+		Boards:   []model.Board{},
+		MemberOf: []model.Board{},
+	}
+
+	t.Run("Success Get User By Id", func(t *testing.T) {
+		mockRepo := userRepo.NewMockUserRepo()
+		mockRepo.On("GetById", expectedUser.ID).Return(expectedUser, nil).Once()
+
+		service := NewUserUseCase(mockRepo)
+		user, err := service.GetUserById(expectedUser.ID)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, user)
+		assert.Equal(t, user.Email, expectedUser.Email)
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("Failed Get User By Id (ID not found)", func(t *testing.T) {
+		mockRepo := userRepo.NewMockUserRepo()
+		expectedErr := errors.New("internal server error") // Define the expected error
+		mockRepo.On("GetById", mock.Anything).Return(nil, expectedErr).Once()
+
+		service := NewUserUseCase(mockRepo)
+		user, err := service.GetUserById(uint(9))
+
+		assert.Error(t, err)
+		assert.Nil(t, user)
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("Failed Get User By Id (Internal Server Error)", func(t *testing.T) {
+		expectedErr := errors.New("Database Error")
+		mockRepo := userRepo.NewMockUserRepo()
+		mockRepo.On("GetById", expectedUser.ID).Return(nil, expectedErr).Once()
+
+		service := NewUserUseCase(mockRepo)
+		user, err := service.GetUserById(expectedUser.ID)
+
+		assert.Error(t, err)
+		assert.Nil(t, user)
+		mockRepo.AssertExpectations(t)
+	})
+}
+
 func TestCreateUser(t *testing.T) {
 	t.Run("Success create user", func(t *testing.T) {
-		data := dto.UserRequest{
+		data := &dto.UserRequest{
 			Name:     "Alvin",
 			Email:    "alvinardiansyah2002@gmail.com",
 			Password: "123",
 		}
 
-		user, err := createUserRequestToUser(&data)
+		user, err := createUserRequestToUserModel(data)
 		assert.Equal(t, err, nil)
 
 		mockRepo := userRepo.NewMockUserRepo()
@@ -64,14 +114,13 @@ func TestCreateUser(t *testing.T) {
 		})).Return(nil).Once()
 
 		service := NewUserUseCase(mockRepo)
-		err = service.CreateUser(&data)
+		err = service.CreateUser(data)
 
 		assert.NoError(t, err)
-		// Use userData when asserting the Create method is called
 		mockRepo.AssertExpectations(t)
 	})
 
-	t.Run("Failed Create User (Missing User Name)", func(t *testing.T) {
+	t.Run("Failed Create User (missing name)", func(t *testing.T) {
 		data := &dto.UserRequest{
 			Name:     "",
 			Email:    "alvinardiansyah2002@gmail.com",
@@ -84,7 +133,7 @@ func TestCreateUser(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("Failed Create User missing email", func(t *testing.T) {
+	t.Run("Failed Create User (missing email)", func(t *testing.T) {
 		data := dto.UserRequest{
 			Name:     "Alvin",
 			Email:    "",
@@ -97,7 +146,7 @@ func TestCreateUser(t *testing.T) {
 		assert.NotNil(t, err)
 	})
 
-	t.Run("Failed Create User missing password", func(t *testing.T) {
+	t.Run("Failed Create User (missing password)", func(t *testing.T) {
 		data := dto.UserRequest{
 			Name:     "Alvin",
 			Email:    "alvinardiansyah2002@gmail.com",
@@ -108,6 +157,30 @@ func TestCreateUser(t *testing.T) {
 		service := NewUserUseCase(mockRepo)
 		err := service.CreateUser(&data)
 		assert.NotNil(t, err)
+	})
+
+	t.Run("Failed Create User (Internal Server Error)", func(t *testing.T) {
+		data := &dto.UserRequest{
+			Name:     "Alvin",
+			Email:    "alvinardiansyah2002@gmail.com",
+			Password: "123",
+		}
+
+		user, err := createUserRequestToUserModel(data)
+		assert.Equal(t, err, nil)
+
+		expectedErr := errors.New("Database Error")
+		mockRepo := userRepo.NewMockUserRepo()
+		mockRepo.On("Create", mock.MatchedBy(func(u *model.User) bool {
+			return u.Name == user.Name &&
+				u.Email == user.Email
+		})).Return(expectedErr).Once()
+
+		service := NewUserUseCase(mockRepo)
+		err = service.CreateUser(data)
+
+		assert.Error(t, err)
+		mockRepo.AssertExpectations(t)
 	})
 }
 
@@ -227,39 +300,35 @@ func TestUpdateUser(t *testing.T) {
 
 		assert.Error(t, err)
 	})
-}
 
-func TestGetUserById(t *testing.T) {
-	expectedUser := &model.User{
-		Model:    gorm.Model{ID: 3},
-		Name:     "Alvin Christ Ardiansyah",
-		Email:    "alvinardiansyah2002@gmail.com",
-		Password: "123",
-	}
+	t.Run("Failed Update User (No field to update)", func(t *testing.T) {
+		userRequest := &dto.UserRequest{}
 
-	t.Run("Success Get User By Id", func(t *testing.T) {
 		mockRepo := userRepo.NewMockUserRepo()
-		mockRepo.On("GetById", expectedUser.ID).Return(expectedUser, nil).Once()
 
 		service := NewUserUseCase(mockRepo)
-		user, err := service.GetUserById(expectedUser.ID)
-
-		assert.NoError(t, err)
-		assert.NotNil(t, user)
-		assert.Equal(t, user.Email, expectedUser.Email)
-		mockRepo.AssertExpectations(t)
-	})
-
-	t.Run("Failed Get User By Id (ID not found)", func(t *testing.T) {
-		mockRepo := userRepo.NewMockUserRepo()
-		expectedErr := errors.New("internal server error") // Define the expected error
-		mockRepo.On("GetById", mock.Anything).Return(nil, expectedErr).Once()
-
-		service := NewUserUseCase(mockRepo)
-		user, err := service.GetUserById(uint(9))
+		err := service.UpdateUser(userToUpdate.ID, userRequest)
 
 		assert.Error(t, err)
-		assert.Nil(t, user)
+	})
+
+	t.Run("Failed Update User (Internal Server Error)", func(t *testing.T) {
+		userRequest := &dto.UserRequest{
+			Email: "johndoe@gmail.com",
+		}
+
+		updateMap := &map[string]interface{}{
+			"Email": "johndoe@gmail.com",
+		}
+
+		expectedErr := errors.New("Database Error")
+		mockRepo := userRepo.NewMockUserRepo()
+		mockRepo.On("Update", userToUpdate.ID, updateMap).Return(expectedErr).Once()
+
+		service := NewUserUseCase(mockRepo)
+		err := service.UpdateUser(userToUpdate.ID, userRequest)
+
+		assert.Error(t, err)
 		mockRepo.AssertExpectations(t)
 	})
 }
@@ -271,7 +340,7 @@ func TestDeleteUser(t *testing.T) {
 		Email:    "alvinardiansyah2002@gmail.com",
 		Password: "123",
 	}
-	t.Run("Sucess Delete User", func(t *testing.T) {
+	t.Run("Success Delete User", func(t *testing.T) {
 		mockRepo := userRepo.NewMockUserRepo()
 		mockRepo.On("Delete", toDeleteUser.ID).Return(nil).Once()
 
@@ -293,5 +362,45 @@ func TestDeleteUser(t *testing.T) {
 
 		assert.Error(t, err)
 		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("Failed Delete User (Internal Server Error)", func(t *testing.T) {
+		expectedErr := errors.New("Database Error")
+		mockRepo := userRepo.NewMockUserRepo()
+		mockRepo.On("Delete", toDeleteUser.ID).Return(expectedErr).Once()
+
+		service := NewUserUseCase(mockRepo)
+		err := service.DeleteUser(toDeleteUser.ID)
+
+		assert.Error(t, err)
+		mockRepo.AssertExpectations(t)
+	})
+}
+
+func TestCreateUserModelUtility(t *testing.T) {
+	t.Run("Success create user model from user request", func(t *testing.T) {
+		userRequest := &dto.UserRequest{
+			Name:     "alvin",
+			Email:    "alvin@gmail.com",
+			Password: "alvin123",
+		}
+
+		userModel, err := createUserRequestToUserModel(userRequest)
+
+		assert.NoError(t, err)
+		assert.NotNil(t, userModel)
+	})
+
+	t.Run("Failed create user model from user request", func(t *testing.T) {
+		userRequest := &dto.UserRequest{
+			Name:     "alvin",
+			Email:    "alvin@gmail.com",
+			Password: "",	
+		}
+
+		userModel, err := createUserRequestToUserModel(userRequest)
+
+		assert.Error(t, err)
+		assert.Nil(t, userModel)
 	})
 }
