@@ -32,7 +32,7 @@ func (b *boardController) GetBoards(c echo.Context) error {
 			Id:   value.ID,
 			Name: value.Name,
 			Desc: value.Desc,
-			Owner: dto.MemberResponse{
+			Owner: &dto.MemberResponse{
 				Id:        value.Owner.ID,
 				Name:      value.Owner.Name,
 				Email:     value.Owner.Email,
@@ -56,9 +56,9 @@ func (b *boardController) GetBoardById(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, responseHelper.FailedResponse(fmt.Sprintf("Error: %s", err.Error())))
 	}
 
-	var members []dto.MemberResponse
+	var members []*dto.MemberResponse
 	for _, value := range board.Members {
-		members = append(members, dto.MemberResponse{
+		members = append(members, &dto.MemberResponse{
 			Id:        value.ID,
 			Name:      value.Name,
 			Email:     value.Email,
@@ -70,7 +70,7 @@ func (b *boardController) GetBoardById(c echo.Context) error {
 		Id:   board.ID,
 		Name: board.Name,
 		Desc: board.Desc,
-		Owner: dto.MemberResponse{
+		Owner: &dto.MemberResponse{
 			Id:        board.Owner.ID,
 			Name:      board.Owner.Name,
 			Email:     board.Owner.Email,

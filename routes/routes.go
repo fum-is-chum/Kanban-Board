@@ -55,7 +55,7 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 	boardGroup.GET("", boardController.GetBoards, m.JWTMiddleware())
 	boardGroup.GET("/:id", boardController.GetBoardById, m.JWTMiddleware())
 	boardGroup.POST("", boardController.CreateBoard, m.JWTMiddleware())
-	boardGroup.PATCH("/:id", boardController.UpdateBoard, m.JWTMiddleware())
+	boardGroup.PUT("/:id", boardController.UpdateBoard, m.JWTMiddleware())
 	boardGroup.DELETE("/:id", boardController.DeleteBoard, m.JWTMiddleware())
 
 	// Board Members

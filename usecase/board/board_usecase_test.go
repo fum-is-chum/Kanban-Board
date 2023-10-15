@@ -200,31 +200,14 @@ func TestUpdateBoard(t *testing.T) {
 			Name: "Board 2",
 		}
 
-		updateMap := &map[string]interface{}{
-			"Name": "Board 2",
-		}
-
 		mockRepo := boardRepo.NewMockBoardRepo()
-		mockRepo.On("Update", boardToUpdate.ID, updateMap).Return(nil).Once()
+		mockRepo.On("Update", boardToUpdate.ID, boardRequest).Return(nil).Once()
 
 		service := NewBoardUseCase(mockRepo)
 		err := service.UpdateBoard(boardToUpdate.ID, boardRequest)
 
 		assert.NoError(t, err)
 		mockRepo.AssertExpectations(t)
-	})
-
-	t.Run("Failed Update Board Name (board name empty)", func(t *testing.T) {
-		boardRequest := &dto.BoardRequest{
-			Name: "",
-		}
-
-		mockRepo := boardRepo.NewMockBoardRepo()
-
-		service := NewBoardUseCase(mockRepo)
-		err := service.UpdateBoard(boardToUpdate.ID, boardRequest)
-
-		assert.Error(t, err)
 	})
 
 	t.Run("Success Update Board Desc", func(t *testing.T) {
@@ -232,12 +215,8 @@ func TestUpdateBoard(t *testing.T) {
 			Desc: "New Description",
 		}
 
-		updateMap := &map[string]interface{}{
-			"Desc": "New Description",
-		}
-
 		mockRepo := boardRepo.NewMockBoardRepo()
-		mockRepo.On("Update", boardToUpdate.ID, updateMap).Return(nil).Once()
+		mockRepo.On("Update", boardToUpdate.ID, boardRequest).Return(nil).Once()
 
 		service := NewBoardUseCase(mockRepo)
 		err := service.UpdateBoard(boardToUpdate.ID, boardRequest)
@@ -246,42 +225,14 @@ func TestUpdateBoard(t *testing.T) {
 		mockRepo.AssertExpectations(t)
 	})
 
-	t.Run("Failed Update Board Name (board Desc empty)", func(t *testing.T) {
-		boardRequest := &dto.BoardRequest{
-			Desc: "",
-		}
-
-		mockRepo := boardRepo.NewMockBoardRepo()
-
-		service := NewBoardUseCase(mockRepo)
-		err := service.UpdateBoard(boardToUpdate.ID, boardRequest)
-
-		assert.Error(t, err)
-	})
-
-	t.Run("Failed Update Board (No fields to update or fields value is empty)", func(t *testing.T) {
-		boardRequest := &dto.BoardRequest{}
-
-		mockRepo := boardRepo.NewMockBoardRepo()
-
-		service := NewBoardUseCase(mockRepo)
-		err := service.UpdateBoard(boardToUpdate.ID, boardRequest)
-
-		assert.Error(t, err)
-	})
-
 	t.Run("Failed Update Board (Internal Server Error)", func(t *testing.T) {
 		boardRequest := &dto.BoardRequest{
 			Name: "Board 2",
 		}
 
-		updateMap := &map[string]interface{}{
-			"Name": "Board 2",
-		}
-
 		expectedErr := errors.New("Database Error")
 		mockRepo := boardRepo.NewMockBoardRepo()
-		mockRepo.On("Update", boardToUpdate.ID, updateMap).Return(expectedErr).Once()
+		mockRepo.On("Update", boardToUpdate.ID, boardRequest).Return(expectedErr).Once()
 
 		service := NewBoardUseCase(mockRepo)
 		err := service.UpdateBoard(boardToUpdate.ID, boardRequest)

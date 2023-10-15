@@ -3,6 +3,7 @@ package usecase
 import (
 	"errors"
 	"kanban-board/dto"
+	fieldHelper "kanban-board/helpers/field"
 	"kanban-board/model"
 	boardRepo "kanban-board/repository/board"
 	"reflect"
@@ -47,7 +48,7 @@ func (b *boardUseCase) GetBoardById(id uint) (*model.Board, error) {
 }
 
 func (b *boardUseCase) CreateBoard(data *dto.BoardRequest) error {
-	err := validate.Struct(data)
+	err := validate.Struct(*data)
 	if err != nil {
 		return err
 	}
@@ -66,27 +67,13 @@ func (b *boardUseCase) CreateBoard(data *dto.BoardRequest) error {
 }
 
 func (b *boardUseCase) UpdateBoard(id uint, data *dto.BoardRequest) error {
-	updates := make(map[string]interface{})
+	val := reflect.ValueOf(*data)
 
-	structValue := reflect.ValueOf(*data)
-	for i := 0; i < structValue.NumField(); i++ {
-		key := structValue.Type().Field(i).Name
-		value := structValue.Field(i).Interface()
-
-		if value != reflect.Zero(structValue.Type().Field(i).Type).Interface() {
-			if key == "OwnerID" {
-				return errors.New("Cannot update board OwnerID from this endpoint!")
-			}
-			updates[key] = value
-		}
+	if fieldHelper.IsFieldSet(&val, "OwnerID") {
+		return errors.New("Cannot update OwnerID from this endpoint")
 	}
 
-	// check if there is no fields to update
-	if len(updates) == 0 {
-		return errors.New("No fields to update or fields value is empty!")
-	}
-
-	if err := b.repo.Update(id, &updates); err != nil {
+	if err := b.repo.Update(id, data); err != nil {
 		return err
 	}
 
