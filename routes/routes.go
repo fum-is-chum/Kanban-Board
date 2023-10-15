@@ -47,7 +47,7 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 	userGroup.GET("", userController.GetUsers, m.JWTMiddleware())
 	userGroup.GET("/:id", userController.GetUser, m.JWTMiddleware())
 	userGroup.POST("", userController.CreateUser)
-	userGroup.PATCH("/:id", userController.UpdateUser, m.JWTMiddleware())
+	userGroup.PUT("/:id", userController.UpdateUser, m.JWTMiddleware())
 	// userGroup.DELETE("/:id", userController.DeleteUser, m.JWTMiddleware())
 
 	// Boards

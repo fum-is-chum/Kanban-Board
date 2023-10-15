@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"kanban-board/dto"
 	"kanban-board/model"
 
 	"gorm.io/gorm"
@@ -11,7 +12,7 @@ type UserRepository interface {
 	GetById(id uint) (*model.User, error)
 	GetByEmail(email string) (*model.User, error)
 	Create(data *model.User) error
-	Update(id uint, data *map[string]interface{}) error
+	Update(id uint, data *dto.UserRequest) error
 	Delete(id uint) error
 }
 
@@ -64,7 +65,7 @@ func (u *userRepository) Create(data *model.User) error {
 	return nil
 }
 
-func (u *userRepository) Update(id uint, data *map[string]interface{}) error {
+func (u *userRepository) Update(id uint, data *dto.UserRequest) error {
 	tx := u.db.Model(&model.User{}).Where("id = ?", id).Updates(&data)
 	if tx.Error != nil {
 		return tx.Error
