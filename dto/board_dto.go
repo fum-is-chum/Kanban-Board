@@ -3,17 +3,17 @@ package dto
 import "time"
 
 type BoardRequest struct {
-	Name    string `json:"name" validate:"required"`
-	Desc    string `json:"desc" validate:"required"`
-	OwnerID uint   `json:"owner_id" validate:"required"`
+	Name    string `json:"name,omitifempty" validate:"required"`
+	Desc    string `json:"desc,omitifempty" validate:"required"`
+	OwnerID uint   `json:"owner_id,omitifempty" validate:"required"`
 }
 
 type BoardResponse struct {
-	Id      uint             `json:"id"`
-	Name    string           `json:"name"`
-	Desc    string           `json:"desc"`
-	Owner   MemberResponse   `json:"owner"`
-	Members []MemberResponse `json:"members"`
+	Id      uint              `json:"id"`
+	Name    string            `json:"name"`
+	Desc    string            `json:"desc"`
+	Owner   *MemberResponse   `json:"owner,omitempty"`
+	Members []*MemberResponse `json:"members,omitempty"`
 }
 
 type MemberResponse struct {

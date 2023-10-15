@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"errors"
-	"fmt"
 	"kanban-board/dto"
 	bcrypt "kanban-board/helpers/bcrypt"
 	fieldHelper "kanban-board/helpers/field"
@@ -85,8 +84,6 @@ func (u *userUseCase) CreateUser(data *dto.UserRequest) error {
 
 func (u *userUseCase) UpdateUser(id uint, data *dto.UserRequest) error {
 	val := reflect.ValueOf(*data)
-	fmt.Print(fieldHelper.IsFieldSet(&val, "Email"))
-	fmt.Print(fieldHelper.IsFieldSet(&val, "Password"))
 
 	if fieldHelper.IsFieldSet(&val, "Email") {
 		if err := validate.Var(data.Email, "email"); err != nil {

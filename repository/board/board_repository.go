@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"kanban-board/dto"
 	"kanban-board/model"
 
 	"gorm.io/gorm"
@@ -10,7 +11,7 @@ type BoardRepository interface {
 	Get() ([]model.Board, error)
 	GetById(id uint) (*model.Board, error)
 	Create(data *model.Board) error
-	Update(id uint, data *map[string]interface{}) error
+	Update(id uint, data *dto.BoardRequest) error
 	Delete(id uint) error
 }
 
@@ -68,7 +69,7 @@ func (b *boardRepository) Create(data *model.Board) error {
 	return nil
 }
 
-func (b *boardRepository) Update(id uint, data *map[string]interface{}) error {
+func (b *boardRepository) Update(id uint, data *dto.BoardRequest) error {
 	tx := b.db.Model(&model.Board{}).Where("id = ?", id).Updates(&data)
 	if tx.Error != nil {
 		return tx.Error
@@ -78,6 +79,11 @@ func (b *boardRepository) Update(id uint, data *map[string]interface{}) error {
 }
 
 func (b *boardRepository) Delete(id uint) error {
+	// Delete all board member first
+	if err := b.db.Model(&model.Board{Model: gorm.Model{ID: id}}).Association("Members").Clear(); err != nil {
+		return err
+	}
+
 	if err := b.db.Unscoped().Delete(&model.Board{}, id).Error; err != nil {
 		return err
 	}
