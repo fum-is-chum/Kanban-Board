@@ -2,8 +2,10 @@ package usecase
 
 import (
 	"errors"
+	"fmt"
 	"kanban-board/dto"
 	bcrypt "kanban-board/helpers/bcrypt"
+	fieldHelper "kanban-board/helpers/field"
 	"kanban-board/model"
 	repository "kanban-board/repository/user"
 	"reflect"
@@ -81,30 +83,28 @@ func (u *userUseCase) CreateUser(data *dto.UserRequest) error {
 	return nil
 }
 
-func (u *userUseCase) UpdateUser(id uint, data *dto.UserRequest) error {
-	updates := make(map[string]interface{})
-	
-	structValue := reflect.ValueOf(*data)
-	for i := 0; i < structValue.NumField(); i++ {
-		key := structValue.Type().Field(i).Name
-		value := structValue.Field(i).Interface()
 
-		if value != nil && value != "" {
-			if key == "Email" {
-				if err := validate.Var(value, "email"); err != nil {
-					return errors.New("email invalid!")
-				}
-			}
-			updates[key] = value
+func (u *userUseCase) UpdateUser(id uint, data *dto.UserRequest) error {
+	val := reflect.ValueOf(*data)
+	fmt.Print(fieldHelper.IsFieldSet(&val, "Email"))
+	fmt.Print(fieldHelper.IsFieldSet(&val, "Password"))
+
+	if fieldHelper.IsFieldSet(&val, "Email") {
+		if err := validate.Var(data.Email, "email"); err != nil {
+			return errors.New("Email invalid")
 		}
 	}
 
-	// Check if there are no fields to update
-	if len(updates) == 0 {
-		return errors.New("No fields to update or fields value is empty!")
+	if fieldHelper.IsFieldSet(&val, "Password") {
+		hashedPass, err := bcrypt.HashPassword(data.Password)
+		if err != nil {
+			return err
+		}
+
+		data.Password = hashedPass
 	}
 	
-	if err := u.userRepo.Update(id, &updates); err != nil {
+	if err := u.userRepo.Update(id, data); err != nil {
 		return err
 	}
 

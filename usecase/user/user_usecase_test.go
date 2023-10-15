@@ -52,7 +52,7 @@ func TestGetUserById(t *testing.T) {
 		Name:     "Alvin Christ Ardiansyah",
 		Email:    "alvinardiansyah2002@gmail.com",
 		Password: "123",
-		MemberOf: []model.Board{},
+		MemberOf: nil,
 	}
 
 	t.Run("Success Get User By Id", func(t *testing.T) {
@@ -195,12 +195,8 @@ func TestUpdateUser(t *testing.T) {
 			Name: "Alvin (Updated)",
 		}
 
-		updateMap := &map[string]interface{}{
-			"Name": "Alvin (Updated)",
-		}
-
 		mockRepo := userRepo.NewMockUserRepo()
-		mockRepo.On("Update", userToUpdate.ID, updateMap).Return(nil).Once()
+		mockRepo.On("Update", userToUpdate.ID, userRequest).Return(nil).Once()
 
 		service := NewUserUseCase(mockRepo)
 		err := service.UpdateUser(userToUpdate.ID, userRequest)
@@ -209,30 +205,13 @@ func TestUpdateUser(t *testing.T) {
 		mockRepo.AssertExpectations(t)
 	})
 
-	t.Run("Failed Update User Name (Name Empty)", func(t *testing.T) {
-		userRequest := &dto.UserRequest{
-			Name: "",
-		}
-
-		mockRepo := userRepo.NewMockUserRepo()
-
-		service := NewUserUseCase(mockRepo)
-		err := service.UpdateUser(userToUpdate.ID, userRequest)
-
-		assert.Error(t, err)
-	})
-
 	t.Run("Success Update User Email", func(t *testing.T) {
 		userRequest := &dto.UserRequest{
 			Email: "johndoe@gmail.com",
 		}
 
-		updateMap := &map[string]interface{}{
-			"Email": "johndoe@gmail.com",
-		}
-
 		mockRepo := userRepo.NewMockUserRepo()
-		mockRepo.On("Update", userToUpdate.ID, updateMap).Return(nil).Once()
+		mockRepo.On("Update", userToUpdate.ID, userRequest).Return(nil).Once()
 
 		service := NewUserUseCase(mockRepo)
 		err := service.UpdateUser(userToUpdate.ID, userRequest)
@@ -253,29 +232,13 @@ func TestUpdateUser(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	t.Run("Failed Update User Email (Email Empty)", func(t *testing.T) {
-		userRequest := &dto.UserRequest{
-			Email: "",
-		}
-
-		mockRepo := userRepo.NewMockUserRepo()
-		service := NewUserUseCase(mockRepo)
-		err := service.UpdateUser(userToUpdate.ID, userRequest)
-
-		assert.Error(t, err)
-	})
-
 	t.Run("Success Update User Password", func(t *testing.T) {
 		userRequest := &dto.UserRequest{
 			Password: "12345",
 		}
 
-		updateMap := &map[string]interface{}{
-			"Password": "12345",
-		}
-
 		mockRepo := userRepo.NewMockUserRepo()
-		mockRepo.On("Update", userToUpdate.ID, updateMap).Return(nil).Once()
+		mockRepo.On("Update", userToUpdate.ID, userRequest).Return(nil).Once()
 
 		service := NewUserUseCase(mockRepo)
 		err := service.UpdateUser(userToUpdate.ID, userRequest)
@@ -284,45 +247,15 @@ func TestUpdateUser(t *testing.T) {
 		mockRepo.AssertExpectations(t)
 	})
 
-	t.Run("Failed Update User Password (Password Empty)", func(t *testing.T) {
-		userRequest := &dto.UserRequest{
-			Password: "",
-		}
-
-		updateMap := &map[string]interface{}{}
-
-		mockRepo := userRepo.NewMockUserRepo()
-		mockRepo.On("Update", userToUpdate.ID, updateMap).Return(nil).Once()
-
-		service := NewUserUseCase(mockRepo)
-		err := service.UpdateUser(userToUpdate.ID, userRequest)
-
-		assert.Error(t, err)
-	})
-
-	t.Run("Failed Update User (No field to update)", func(t *testing.T) {
-		userRequest := &dto.UserRequest{}
-
-		mockRepo := userRepo.NewMockUserRepo()
-
-		service := NewUserUseCase(mockRepo)
-		err := service.UpdateUser(userToUpdate.ID, userRequest)
-
-		assert.Error(t, err)
-	})
 
 	t.Run("Failed Update User (Internal Server Error)", func(t *testing.T) {
 		userRequest := &dto.UserRequest{
 			Email: "johndoe@gmail.com",
 		}
 
-		updateMap := &map[string]interface{}{
-			"Email": "johndoe@gmail.com",
-		}
-
 		expectedErr := errors.New("Database Error")
 		mockRepo := userRepo.NewMockUserRepo()
-		mockRepo.On("Update", userToUpdate.ID, updateMap).Return(expectedErr).Once()
+		mockRepo.On("Update", userToUpdate.ID, userRequest).Return(expectedErr).Once()
 
 		service := NewUserUseCase(mockRepo)
 		err := service.UpdateUser(userToUpdate.ID, userRequest)
