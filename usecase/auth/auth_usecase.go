@@ -26,7 +26,7 @@ func NewAuthUseCase(userRepo repository.UserRepository) *authUseCase {
 
 func (u *authUseCase) Login(data *dto.LoginRequest) (string, *model.User, error) {
 	// find user by email
-	user, err := u.userRepo.GetByEmail(data.Email);
+	user, err := u.userRepo.GetByEmail(data.Email)
 	if err != nil {
 		return "", nil, err
 	}
@@ -40,6 +40,6 @@ func (u *authUseCase) Login(data *dto.LoginRequest) (string, *model.User, error)
 	if err != nil {
 		return "", nil, err
 	}
-	
+
 	return token, user, nil
 }

@@ -22,7 +22,7 @@ func (b *boardMemberController) AddMember(c echo.Context) error {
 	var request dto.BoardMemberRequest
 
 	if err := c.Bind(&request); err != nil {
-		return c.JSON(http.StatusBadRequest, responseHelper.FailedResponse(fmt.Sprintf("Bad Request: %s", err.Error()))) 
+		return c.JSON(http.StatusBadRequest, responseHelper.FailedResponse(fmt.Sprintf("Bad Request: %s", err.Error())))
 	}
 
 	if err := b.useCase.AddMember(&request); err != nil {
@@ -36,7 +36,7 @@ func (b *boardMemberController) RemoveMember(c echo.Context) error {
 	var request dto.BoardMemberRequest
 
 	if err := c.Bind(&request); err != nil {
-		return c.JSON(http.StatusBadRequest, responseHelper.FailedResponse(fmt.Sprintf("Bad Request: %s", err.Error()))) 
+		return c.JSON(http.StatusBadRequest, responseHelper.FailedResponse(fmt.Sprintf("Bad Request: %s", err.Error())))
 	}
 
 	if err := b.useCase.DeleteMember(&request); err != nil {

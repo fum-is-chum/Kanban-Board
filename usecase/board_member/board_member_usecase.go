@@ -38,7 +38,6 @@ func (b *boardMemberUseCase) DeleteMember(data *dto.BoardMemberRequest) error {
 	if err := validate.Struct(*data); err != nil {
 		return err
 	}
-	
 
 	if err := b.repo.DeleteMember(data.BoardID, data.UserID); err != nil {
 		return err

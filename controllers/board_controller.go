@@ -29,9 +29,9 @@ func (b *boardController) GetBoards(c echo.Context) error {
 	var response []dto.BoardResponse
 	for _, value := range boards {
 		response = append(response, dto.BoardResponse{
-			Id:    value.ID,
-			Name:  value.Name,
-			Desc:  value.Desc,
+			Id:   value.ID,
+			Name: value.Name,
+			Desc: value.Desc,
 			Owner: dto.MemberResponse{
 				Id:        value.Owner.ID,
 				Name:      value.Owner.Name,

@@ -291,7 +291,6 @@ func TestUpdateBoard(t *testing.T) {
 	})
 }
 
-
 func TestDeleteBoard(t *testing.T) {
 	boardToDelete := &model.Board{
 		Model:   gorm.Model{ID: 1},

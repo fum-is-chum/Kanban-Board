@@ -9,9 +9,9 @@ type BoardRequest struct {
 }
 
 type BoardResponse struct {
-	Id      uint           `json:"id"`
-	Name    string         `json:"name"`
-	Desc    string         `json:"desc"`
+	Id      uint             `json:"id"`
+	Name    string           `json:"name"`
+	Desc    string           `json:"desc"`
 	Owner   MemberResponse   `json:"owner"`
 	Members []MemberResponse `json:"members"`
 }

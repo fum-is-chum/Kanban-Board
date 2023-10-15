@@ -83,7 +83,6 @@ func (u *userUseCase) CreateUser(data *dto.UserRequest) error {
 	return nil
 }
 
-
 func (u *userUseCase) UpdateUser(id uint, data *dto.UserRequest) error {
 	val := reflect.ValueOf(*data)
 	fmt.Print(fieldHelper.IsFieldSet(&val, "Email"))
@@ -103,7 +102,7 @@ func (u *userUseCase) UpdateUser(id uint, data *dto.UserRequest) error {
 
 		data.Password = hashedPass
 	}
-	
+
 	if err := u.userRepo.Update(id, data); err != nil {
 		return err
 	}

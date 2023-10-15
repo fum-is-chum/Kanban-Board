@@ -36,7 +36,7 @@ func InitConfigTest() *AppConfig {
 	re := regexp.MustCompile(`^(.*` + projectDirName + `)`)
 	cwd, _ := os.Getwd()
 	rootPath := re.Find([]byte(cwd))
-	
+
 	res = loadConfig(string(rootPath) + "/.env.test")
 	if res == nil {
 		logrus.Fatal("Config: Cannot start program, failed to load configuration")
@@ -76,19 +76,19 @@ func loadConfig(envPath string) *AppConfig {
 		res.DBPORT = port
 	}
 
-	if val,found := os.LookupEnv("DBHOST"); found {
+	if val, found := os.LookupEnv("DBHOST"); found {
 		res.DBHOST = val
 	}
 
-	if val,found := os.LookupEnv("DBUSER"); found {
+	if val, found := os.LookupEnv("DBUSER"); found {
 		res.DBUSER = val
 	}
 
-	if val,found := os.LookupEnv("DBPASS"); found {
+	if val, found := os.LookupEnv("DBPASS"); found {
 		res.DBPASS = val
 	}
 
-	if val,found := os.LookupEnv("DBNAME"); found {
+	if val, found := os.LookupEnv("DBNAME"); found {
 		res.DBNAME = val
 	}
 

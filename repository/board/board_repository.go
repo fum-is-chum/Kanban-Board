@@ -64,7 +64,7 @@ func (b *boardRepository) Create(data *model.Board) error {
 	if err := b.db.Model(&board).Association("Members").Append(&user); err != nil {
 		return err
 	}
-	
+
 	return nil
 }
 

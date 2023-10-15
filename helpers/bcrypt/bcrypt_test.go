@@ -13,7 +13,7 @@ func TestHashAndVerifyPassword(t *testing.T) {
 
 		err = VerifyPassword(newHash, "123")
 		assert.Equal(t, err, nil)
-		
+
 	})
 
 	t.Run("Hash Invalid OK", func(t *testing.T) {
@@ -22,6 +22,6 @@ func TestHashAndVerifyPassword(t *testing.T) {
 
 		err = VerifyPassword(newHash, "12345")
 		assert.NotEqual(t, err, nil)
-		
+
 	})
 }

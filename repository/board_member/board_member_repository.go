@@ -40,19 +40,19 @@ func (b *boardMemberRepository) AddMember(boardId uint, userId uint) error {
 
 func (b *boardMemberRepository) DeleteMember(boardId uint, userId uint) error {
 	var user model.User
-    var board model.Board
+	var board model.Board
 
-    if err := b.db.First(&user, userId).Error; err != nil {
-        return err
-    }
+	if err := b.db.First(&user, userId).Error; err != nil {
+		return err
+	}
 
-    if err := b.db.First(&board, boardId).Error; err != nil {
-        return err
-    }
+	if err := b.db.First(&board, boardId).Error; err != nil {
+		return err
+	}
 
-    if err := b.db.Model(&board).Association("Members").Delete(&user); err != nil {
-        return err
-    }
+	if err := b.db.Model(&board).Association("Members").Delete(&user); err != nil {
+		return err
+	}
 
 	return nil
 }

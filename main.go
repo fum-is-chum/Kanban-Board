@@ -7,7 +7,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-
 func main() {
 	// load config
 	var cfg = config.InitConfig()

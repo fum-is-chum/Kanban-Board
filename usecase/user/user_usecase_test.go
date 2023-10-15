@@ -247,7 +247,6 @@ func TestUpdateUser(t *testing.T) {
 		mockRepo.AssertExpectations(t)
 	})
 
-
 	t.Run("Failed Update User (Internal Server Error)", func(t *testing.T) {
 		userRequest := &dto.UserRequest{
 			Email: "johndoe@gmail.com",
@@ -327,7 +326,7 @@ func TestCreateUserModelUtility(t *testing.T) {
 		userRequest := &dto.UserRequest{
 			Name:     "alvin",
 			Email:    "alvin@gmail.com",
-			Password: "",	
+			Password: "",
 		}
 
 		userModel, err := createUserRequestToUserModel(userRequest)
