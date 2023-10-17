@@ -14,7 +14,7 @@ func LoadSecrets(envPath string, key string) (string, error) {
 		return "", err
 	}
 
-	if val, found := os.LookupEnv("SECRETJWT"); found {
+	if val, found := os.LookupEnv("SECRET_JWT"); found {
 		return val, nil
 	}
 
