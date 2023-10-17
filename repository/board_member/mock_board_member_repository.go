@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"kanban-board/model"
-
 	"github.com/stretchr/testify/mock"
 )
 
@@ -14,12 +12,12 @@ func NewMockBoardMemberRepo() *mockBoardMemberRepository {
 	return &mockBoardMemberRepository{}
 }
 
-func (m *mockBoardMemberRepository) AddMember(board *model.Board, user *model.User) error {
-	ret := m.Called(board, user)
+func (m *mockBoardMemberRepository) AddMember(boardId uint, userId uint) error {
+	ret := m.Called(boardId, userId)
 	return ret.Error(0)
 }
 
-func (m *mockBoardMemberRepository) DeleteMember(board *model.Board, user *model.User) error {
-	ret := m.Called(board, user)
+func (m *mockBoardMemberRepository) DeleteMember(boardId uint, userId uint) error {
+	ret := m.Called(boardId, userId)
 	return ret.Error(0)
 }
