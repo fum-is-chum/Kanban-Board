@@ -37,7 +37,7 @@ func (b *boardRepository) Get() ([]model.Board, error) {
 func (b *boardRepository) GetById(id uint) (*model.Board, error) {
 	var board model.Board
 
-	tx := b.db.Preload("Owner").Preload("Members").Where("id = ?", id).First(&board)
+	tx := b.db.Preload("Owner").Preload("Members").Preload("Columns").Where("id = ?", id).First(&board)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}

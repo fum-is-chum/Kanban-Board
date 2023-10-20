@@ -33,7 +33,7 @@ func (u *authController) Login(c echo.Context) error {
 	loginResponse := dto.LoginResponse{
 		Token: token,
 		User: dto.UserResponse{
-			Id:        user.ID,
+			ID:        user.ID,
 			Name:      user.Name,
 			Email:     user.Email,
 			CreatedAt: user.CreatedAt,

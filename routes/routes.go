@@ -4,10 +4,12 @@ import (
 	controller "kanban-board/controllers"
 	m "kanban-board/middlewares"
 	boardRepo "kanban-board/repository/board"
+	boardColumnRepo "kanban-board/repository/board_column"
 	boardMemberRepo "kanban-board/repository/board_member"
 	userRepo "kanban-board/repository/user"
 	authUsecase "kanban-board/usecase/auth"
 	boardUsecase "kanban-board/usecase/board"
+	boardColumnUsecase "kanban-board/usecase/board_column"
 	boardMemberUsecase "kanban-board/usecase/board_member"
 	userUsecase "kanban-board/usecase/user"
 
@@ -25,18 +27,21 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 	userRepo := userRepo.NewUserRepository(db)
 	boardRepo := boardRepo.NewBoardRepository(db)
 	boardMemberRepo := boardMemberRepo.NewBoardMemberRepository(db)
+	boardColumnRepo := boardColumnRepo.NewBoardColumnRepository(db)
 
 	// Services
 	authService := authUsecase.NewAuthUseCase(userRepo)
 	userService := userUsecase.NewUserUseCase(userRepo)
 	boardService := boardUsecase.NewBoardUseCase(boardRepo)
 	boardMemberService := boardMemberUsecase.NewBoardMemberUseCase(boardMemberRepo)
+	boardColumnService := boardColumnUsecase.NewBoardColumnUseCase(boardColumnRepo)
 
 	// Controllers
 	authController := controller.NewAuthController(authService)
 	userController := controller.NewUserController(userService)
 	boardController := controller.NewBoardController(boardService)
 	boardMemberController := controller.NewBoardMemberController(boardMemberService)
+	boardColumnController := controller.NewBoardColumnController(boardColumnService)
 	// -------------------------------------------------------------------------------
 
 	// Login
@@ -62,4 +67,12 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 	boardMemberGroup := e.Group("/board-members")
 	boardMemberGroup.POST("/add", boardMemberController.AddMember, m.JWTMiddleware())
 	boardMemberGroup.POST("/remove", boardMemberController.RemoveMember, m.JWTMiddleware())
+
+	// Board Column
+	columnGroup := e.Group("/board-columns")
+	columnGroup.GET("", boardColumnController.GetColumns, m.JWTMiddleware())
+	columnGroup.GET("/:id", boardColumnController.GetColumn, m.JWTMiddleware())
+	columnGroup.POST("", boardColumnController.CreateColumn, m.JWTMiddleware())
+	columnGroup.PUT("/:id", boardColumnController.UpdateColumn, m.JWTMiddleware())
+	columnGroup.DELETE("/:id", boardColumnController.DeleteColumn, m.JWTMiddleware())
 }
