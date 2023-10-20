@@ -3,10 +3,8 @@ package usecase
 import (
 	"errors"
 	"kanban-board/dto"
-	fieldHelper "kanban-board/helpers/field"
 	"kanban-board/model"
 	boardRepo "kanban-board/repository/board"
-	"reflect"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -67,13 +65,12 @@ func (b *boardUseCase) CreateBoard(data *dto.BoardRequest) error {
 }
 
 func (b *boardUseCase) UpdateBoard(id uint, data *dto.BoardRequest) error {
-	val := reflect.ValueOf(*data)
-
-	if fieldHelper.IsFieldSet(&val, "OwnerID") {
-		return errors.New("Cannot update OwnerID from this endpoint")
+	updatedData := &dto.BoardRequest{
+		Name: data.Name,
+		Desc: data.Desc,
 	}
 
-	if err := b.repo.Update(id, data); err != nil {
+	if err := b.repo.Update(id, updatedData); err != nil {
 		return err
 	}
 

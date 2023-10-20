@@ -159,21 +159,6 @@ func TestUpdateColumn(t *testing.T) {
 		mockRepo.AssertExpectations(t)
 	})
 
-	t.Run("Failed Update Column (Cannot update BoardID)", func(t *testing.T) {
-		mockRequest := &dto.BoardColumnRequest{
-			Label:   "Column 1",
-			Desc:    "Column 1 description",
-			BoardID: uint(1),
-		}
-
-		mockRepo := repo.NewMockBoardColumnRepo()
-
-		service := NewBoardColumnUseCase(mockRepo)
-		err := service.UpdateColumn(uint(1), mockRequest)
-
-		assert.Error(t, err)
-	})
-
 	t.Run("Failed Update Column (Internal Server Error)", func(t *testing.T) {
 		mockRequest := &dto.BoardColumnRequest{
 			Label: "Column 1",

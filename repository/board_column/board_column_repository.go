@@ -26,11 +26,11 @@ func NewBoardColumnRepository(db *gorm.DB) *boardColumnRepository {
 
 func (b *boardColumnRepository) Get(boardId uint) ([]model.BoardColumn, error) {
 	var columns []model.BoardColumn
-	
+
 	if err := b.db.Where("board_id = ?", boardId).Find(&columns).Error; err != nil {
 		return nil, err
 	}
-	
+
 	return columns, nil
 }
 

@@ -1,12 +1,9 @@
 package usecase
 
 import (
-	"errors"
 	"kanban-board/dto"
-	fieldHelper "kanban-board/helpers/field"
 	"kanban-board/model"
 	boardColumnRepo "kanban-board/repository/board_column"
-	"reflect"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -53,8 +50,8 @@ func (b *boardColumnUseCase) CreateColumn(data *dto.BoardColumnRequest) error {
 	}
 
 	columnModel := &model.BoardColumn{
-		Label: data.Label,
-		Desc: data.Desc,
+		Label:   data.Label,
+		Desc:    data.Desc,
 		BoardID: data.BoardID,
 	}
 
@@ -66,13 +63,12 @@ func (b *boardColumnUseCase) CreateColumn(data *dto.BoardColumnRequest) error {
 }
 
 func (b *boardColumnUseCase) UpdateColumn(id uint, data *dto.BoardColumnRequest) error {
-	val := reflect.ValueOf(*data)
-
-	if fieldHelper.IsFieldSet(&val, "BoardID") {
-		return errors.New("Cannot update BoardID from this endpoint")
+	updatedData := &dto.BoardColumnRequest{
+		Label: data.Label,
+		Desc: data.Desc,
 	}
 
-	if err := b.repo.Update(id, data); err != nil {
+	if err := b.repo.Update(id, updatedData); err != nil {
 		return err
 	}
 

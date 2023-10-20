@@ -11,27 +11,26 @@ import (
 	"gorm.io/gorm"
 )
 
-
 var mockUserData = &model.User{
-	Model: gorm.Model{ID: 1},
-	Name: "Alvin",
-	Email: "alvin@gmail.com",
+	Model:    gorm.Model{ID: 1},
+	Name:     "Alvin",
+	Email:    "alvin@gmail.com",
 	Password: "alvin123",
 }
 
 var mockBoardData = &model.Board{
-	Model: gorm.Model{ID: 1},
-	Name: "Golang Project",
-	Desc: "Project Description",
+	Model:   gorm.Model{ID: 1},
+	Name:    "Golang Project",
+	Desc:    "Project Description",
 	OwnerID: 1,
 	Members: nil,
 }
 
 func TestAddMember(t *testing.T) {
-	t.Run("Success Add Member", func (t* testing.T) {
+	t.Run("Success Add Member", func(t *testing.T) {
 		mockRequest := &dto.BoardMemberRequest{
 			BoardID: mockBoardData.ID,
-			UserID: mockUserData.ID,
+			UserID:  mockUserData.ID,
 		}
 
 		mockRepo := repo.NewMockBoardMemberRepo()
@@ -58,10 +57,10 @@ func TestAddMember(t *testing.T) {
 	t.Run("Failed Add Member (Internal Server Error)", func(t *testing.T) {
 		mockRequest := &dto.BoardMemberRequest{
 			BoardID: mockBoardData.ID,
-			UserID: mockUserData.ID,
+			UserID:  mockUserData.ID,
 		}
 		expectedErr := errors.New("Internal Server Error")
-		
+
 		mockRepo := repo.NewMockBoardMemberRepo()
 		mockRepo.On("AddMember", mockRequest.BoardID, mockRequest.UserID).Return(expectedErr).Once()
 
@@ -74,10 +73,10 @@ func TestAddMember(t *testing.T) {
 }
 
 func TestDeleteMember(t *testing.T) {
-	t.Run("Success Delete Member", func (t* testing.T) {
+	t.Run("Success Delete Member", func(t *testing.T) {
 		mockRequest := &dto.BoardMemberRequest{
 			BoardID: mockBoardData.ID,
-			UserID: mockUserData.ID,
+			UserID:  mockUserData.ID,
 		}
 
 		mockRepo := repo.NewMockBoardMemberRepo()
@@ -104,10 +103,10 @@ func TestDeleteMember(t *testing.T) {
 	t.Run("Failed Delete Member (Internal Server Error)", func(t *testing.T) {
 		mockRequest := &dto.BoardMemberRequest{
 			BoardID: mockBoardData.ID,
-			UserID: mockUserData.ID,
+			UserID:  mockUserData.ID,
 		}
 		expectedErr := errors.New("Internal Server Error")
-		
+
 		mockRepo := repo.NewMockBoardMemberRepo()
 		mockRepo.On("DeleteMember", mockRequest.BoardID, mockRequest.UserID).Return(expectedErr).Once()
 
