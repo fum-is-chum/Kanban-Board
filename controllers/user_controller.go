@@ -30,7 +30,7 @@ func (u *userController) GetUsers(c echo.Context) error {
 	var response []dto.UserResponse
 	for _, value := range users {
 		response = append(response, dto.UserResponse{
-			Id:        value.ID,
+			ID:        value.ID,
 			Name:      value.Name,
 			Email:     value.Email,
 			CreatedAt: value.CreatedAt,
@@ -44,7 +44,7 @@ func (u *userController) GetUsers(c echo.Context) error {
 func (u *userController) GetUser(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, responseHelper.FailedResponse("Bad Request: Id invalid"))
+		return c.JSON(http.StatusBadRequest, responseHelper.FailedResponse("Bad Request: ID invalid"))
 	}
 
 	user, err := u.useCase.GetUserById(uint(id))
@@ -60,14 +60,14 @@ func (u *userController) GetUser(c echo.Context) error {
 	fmt.Print(user.MemberOf)
 	for _, board := range user.MemberOf {
 		memberOf = append(memberOf, &dto.BoardResponse{
-			Id:   board.ID,
+			ID:   board.ID,
 			Name: board.Name,
 			Desc: board.Desc,
 		})
 	}
 
 	return c.JSON(http.StatusOK, responseHelper.SuccessWithDataResponse(fmt.Sprintf("Sucess fetch user with id %d", id), dto.UserResponse{
-		Id:        user.ID,
+		ID:        user.ID,
 		Name:      user.Name,
 		Email:     user.Email,
 		MemberOf:  memberOf,
@@ -94,7 +94,7 @@ func (u *userController) CreateUser(c echo.Context) error {
 func (u *userController) UpdateUser(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, responseHelper.FailedResponse("Bad request: Id invalid"))
+		return c.JSON(http.StatusBadRequest, responseHelper.FailedResponse("Bad request: ID invalid"))
 	}
 
 	var payload dto.UserRequest
@@ -112,7 +112,7 @@ func (u *userController) UpdateUser(c echo.Context) error {
 func (u *userController) DeleteUser(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, responseHelper.FailedResponse("Bad request: Id invalid"))
+		return c.JSON(http.StatusBadRequest, responseHelper.FailedResponse("Bad request: ID invalid"))
 	}
 
 	if err := u.useCase.DeleteUser(uint(id)); err != nil {

@@ -10,5 +10,5 @@ type BoardColumnResponse struct {
 	ID      uint   `json:"id"`
 	Label   string `json:"label"`
 	Desc    string `json:"desc"`
-	BoardID uint   `json:"board_id"`
+	BoardID uint   `json:"board_id,omitempty"`
 }
