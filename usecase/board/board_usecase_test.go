@@ -97,22 +97,21 @@ func TestGetBoardById(t *testing.T) {
 func TestCreateBoard(t *testing.T) {
 	t.Run("Success Create Board", func(t *testing.T) {
 		data := &dto.BoardRequest{
-			Name:    "Board 1",
-			Desc:    "Board 1 Description",
-			OwnerID: 3,
+			Name: "Board 1",
+			Desc: "Board 1 Description",
 		}
-
+		issuerId := uint(3)
 		dataModel := &model.Board{
 			Name:    data.Name,
 			Desc:    data.Desc,
-			OwnerID: data.OwnerID,
+			OwnerID: issuerId,
 		}
 
 		mockRepo := boardRepo.NewMockBoardRepo()
 		mockRepo.On("Create", dataModel).Return(nil).Once()
 
 		service := NewBoardUseCase(mockRepo)
-		err := service.CreateBoard(data)
+		err := service.CreateBoard(issuerId, data)
 
 		assert.NoError(t, err)
 		mockRepo.AssertExpectations(t)
@@ -120,59 +119,44 @@ func TestCreateBoard(t *testing.T) {
 
 	t.Run("Failed Create Board (Missing board name)", func(t *testing.T) {
 		data := &dto.BoardRequest{
-			Name:    "",
-			Desc:    "Board 1 Description",
-			OwnerID: 3,
+			Name: "",
+			Desc: "Board 1 Description",
 		}
+		issuerId := uint(3)
 
 		mockRepo := boardRepo.NewMockBoardRepo()
 
 		service := NewBoardUseCase(mockRepo)
-		err := service.CreateBoard(data)
+		err := service.CreateBoard(issuerId, data)
 
 		assert.Error(t, err)
 	})
 
 	t.Run("Failed Create Board (Missing board desc)", func(t *testing.T) {
 		data := &dto.BoardRequest{
-			Name:    "Board 1",
-			Desc:    "",
-			OwnerID: 3,
-		}
-
-		mockRepo := boardRepo.NewMockBoardRepo()
-
-		service := NewBoardUseCase(mockRepo)
-		err := service.CreateBoard(data)
-
-		assert.Error(t, err)
-	})
-
-	t.Run("Failed Create Board (Missing OwnerId)", func(t *testing.T) {
-		data := &dto.BoardRequest{
 			Name: "Board 1",
-			Desc: "Board 1 Desc",
+			Desc: "",
 		}
+		issuerId := uint(3)
 
 		mockRepo := boardRepo.NewMockBoardRepo()
 
 		service := NewBoardUseCase(mockRepo)
-		err := service.CreateBoard(data)
+		err := service.CreateBoard(issuerId, data)
 
 		assert.Error(t, err)
 	})
 
 	t.Run("Failed Create Board (Internal Server Error)", func(t *testing.T) {
 		data := &dto.BoardRequest{
-			Name:    "Board 1",
-			Desc:    "Board 1 Description",
-			OwnerID: 3,
+			Name: "Board 1",
+			Desc: "Board 1 Description",
 		}
-
+		issuerId := uint(3)
 		dataModel := &model.Board{
 			Name:    data.Name,
 			Desc:    data.Desc,
-			OwnerID: data.OwnerID,
+			OwnerID: issuerId,
 		}
 
 		expectedErr := errors.New("Database Error")
@@ -180,7 +164,7 @@ func TestCreateBoard(t *testing.T) {
 		mockRepo.On("Create", dataModel).Return(expectedErr).Once()
 
 		service := NewBoardUseCase(mockRepo)
-		err := service.CreateBoard(data)
+		err := service.CreateBoard(issuerId, data)
 
 		assert.Error(t, err)
 		mockRepo.AssertExpectations(t)
@@ -199,12 +183,13 @@ func TestUpdateBoard(t *testing.T) {
 		boardRequest := &dto.BoardRequest{
 			Name: "Board 2",
 		}
+		issuerId := uint(3)
 
 		mockRepo := boardRepo.NewMockBoardRepo()
-		mockRepo.On("Update", boardToUpdate.ID, boardRequest).Return(nil).Once()
+		mockRepo.On("Update", boardToUpdate.ID, issuerId, boardRequest).Return(nil).Once()
 
 		service := NewBoardUseCase(mockRepo)
-		err := service.UpdateBoard(boardToUpdate.ID, boardRequest)
+		err := service.UpdateBoard(boardToUpdate.ID, issuerId, boardRequest)
 
 		assert.NoError(t, err)
 		mockRepo.AssertExpectations(t)
@@ -214,12 +199,13 @@ func TestUpdateBoard(t *testing.T) {
 		boardRequest := &dto.BoardRequest{
 			Desc: "New Description",
 		}
+		issuerId := uint(3)
 
 		mockRepo := boardRepo.NewMockBoardRepo()
-		mockRepo.On("Update", boardToUpdate.ID, boardRequest).Return(nil).Once()
+		mockRepo.On("Update", boardToUpdate.ID, issuerId, boardRequest).Return(nil).Once()
 
 		service := NewBoardUseCase(mockRepo)
-		err := service.UpdateBoard(boardToUpdate.ID, boardRequest)
+		err := service.UpdateBoard(boardToUpdate.ID, issuerId, boardRequest)
 
 		assert.NoError(t, err)
 		mockRepo.AssertExpectations(t)
@@ -229,13 +215,14 @@ func TestUpdateBoard(t *testing.T) {
 		boardRequest := &dto.BoardRequest{
 			Name: "Board 2",
 		}
+		issuerId := uint(3)
 
 		expectedErr := errors.New("Database Error")
 		mockRepo := boardRepo.NewMockBoardRepo()
-		mockRepo.On("Update", boardToUpdate.ID, boardRequest).Return(expectedErr).Once()
+		mockRepo.On("Update", boardToUpdate.ID, issuerId, boardRequest).Return(expectedErr).Once()
 
 		service := NewBoardUseCase(mockRepo)
-		err := service.UpdateBoard(boardToUpdate.ID, boardRequest)
+		err := service.UpdateBoard(boardToUpdate.ID, issuerId, boardRequest)
 
 		assert.Error(t, err)
 		mockRepo.AssertExpectations(t)

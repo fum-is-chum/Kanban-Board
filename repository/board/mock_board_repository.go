@@ -29,8 +29,8 @@ func (m *mockBoardRepository) Create(data *model.Board) error {
 	return ret.Error(0)
 }
 
-func (m *mockBoardRepository) Update(id uint, data *dto.BoardRequest) error {
-	ret := m.Called(id, data)
+func (m *mockBoardRepository) Update(id uint, issuerId uint, data *dto.BoardRequest) error {
+	ret := m.Called(id, issuerId, data)
 	return ret.Error(0)
 }
 

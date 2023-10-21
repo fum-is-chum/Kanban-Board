@@ -14,9 +14,9 @@ var validate = validator.New(validator.WithRequiredStructEnabled())
 type BoardUseCase interface {
 	GetBoards() ([]model.Board, error)
 	GetBoardById(id uint) (*model.Board, error)
-	CreateBoard(data *dto.BoardRequest) error
-	UpdateBoard(id uint, data *dto.BoardRequest) error
-	DeleteBoard(id uint, issuerUserId uint) error
+	CreateBoard(issuerId uint, data *dto.BoardRequest) error
+	UpdateBoard(id uint, issuerId uint, data *dto.BoardRequest) error
+	DeleteBoard(id uint, issuerId uint) error
 }
 
 type boardUseCase struct {
@@ -45,7 +45,7 @@ func (b *boardUseCase) GetBoardById(id uint) (*model.Board, error) {
 	return board, nil
 }
 
-func (b *boardUseCase) CreateBoard(data *dto.BoardRequest) error {
+func (b *boardUseCase) CreateBoard(issuerId uint, data *dto.BoardRequest) error {
 	err := validate.Struct(*data)
 	if err != nil {
 		return err
@@ -54,7 +54,7 @@ func (b *boardUseCase) CreateBoard(data *dto.BoardRequest) error {
 	boardModel := &model.Board{
 		Name:    data.Name,
 		Desc:    data.Desc,
-		OwnerID: data.OwnerID,
+		OwnerID: issuerId,
 	}
 
 	if err := b.repo.Create(boardModel); err != nil {
@@ -64,27 +64,27 @@ func (b *boardUseCase) CreateBoard(data *dto.BoardRequest) error {
 	return nil
 }
 
-func (b *boardUseCase) UpdateBoard(id uint, data *dto.BoardRequest) error {
+func (b *boardUseCase) UpdateBoard(id uint, issuerId uint, data *dto.BoardRequest) error {
 	updatedData := &dto.BoardRequest{
 		Name: data.Name,
 		Desc: data.Desc,
 	}
 
-	if err := b.repo.Update(id, updatedData); err != nil {
+	if err := b.repo.Update(id, issuerId, updatedData); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (b *boardUseCase) DeleteBoard(id uint, issuerUserId uint) error {
+func (b *boardUseCase) DeleteBoard(id uint, issuerId uint) error {
 	// ensure user cannot delete other user's board
 	board, err := b.repo.GetById(id)
 	if err != nil {
 		return err
 	}
 
-	if board.OwnerID != issuerUserId {
+	if board.OwnerID != issuerId {
 		return errors.New("User only can delete board they owned!")
 	}
 

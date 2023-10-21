@@ -99,7 +99,9 @@ func (b *boardController) CreateBoard(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, responseHelper.FailedResponse(fmt.Sprintf("Bad Request: %s", err.Error())))
 	}
 
-	if err := b.useCase.CreateBoard(&payload); err != nil {
+	userId := m.ExtractTokenUserId(c)
+
+	if err := b.useCase.CreateBoard(uint(userId), &payload); err != nil {
 		return c.JSON(http.StatusInternalServerError, responseHelper.FailedResponse(fmt.Sprintf("Error: %s", err.Error())))
 	}
 
@@ -117,7 +119,9 @@ func (b *boardController) UpdateBoard(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, responseHelper.FailedResponse(fmt.Sprintf("Bad Request: %s", err.Error())))
 	}
 
-	if err := b.useCase.UpdateBoard(uint(id), &payload); err != nil {
+	userId := m.ExtractTokenUserId(c)
+
+	if err := b.useCase.UpdateBoard(uint(id), uint(userId), &payload); err != nil {
 		return c.JSON(http.StatusInternalServerError, responseHelper.FailedResponse(fmt.Sprintf("Error: %s", err.Error())))
 	}
 

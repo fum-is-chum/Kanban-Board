@@ -52,7 +52,6 @@ func (b *boardColumnRepository) Create(issuerId uint, data *model.BoardColumn) e
 	}
 
 	var issuerIsMember bool
-
 	for _, member := range board.Members {
 		if member.ID == issuerId {
 			issuerIsMember = true
