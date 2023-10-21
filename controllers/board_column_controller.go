@@ -71,7 +71,9 @@ func (b *boardColumnController) CreateColumn(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, responseHelper.FailedResponse(fmt.Sprintf("Bad Request: %s", err.Error())))
 	}
 
-	if err := b.useCase.CreateColumn(&payload); err != nil {
+	userId := m.ExtractTokenUserId(c)
+
+	if err := b.useCase.CreateColumn(uint(userId), &payload); err != nil {
 		return c.JSON(http.StatusInternalServerError, responseHelper.FailedResponse(fmt.Sprintf("Error: %s", err.Error())))
 	}
 
@@ -89,7 +91,9 @@ func (b *boardColumnController) UpdateColumn(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, responseHelper.FailedResponse(fmt.Sprintf("Bad Request: %s", err.Error())))
 	}
 
-	if err := b.useCase.UpdateColumn(uint(id), &payload); err != nil {
+	userId := m.ExtractTokenUserId(c)
+
+	if err := b.useCase.UpdateColumn(uint(id), uint(userId), &payload); err != nil {
 		return c.JSON(http.StatusInternalServerError, responseHelper.FailedResponse(fmt.Sprintf("Error: %s", err.Error())))
 	}
 

@@ -94,11 +94,13 @@ func TestCreateColumn(t *testing.T) {
 			BoardID: mockRequest.BoardID,
 		}
 
+		issuerId := uint(1)
+
 		mockRepo := repo.NewMockBoardColumnRepo()
-		mockRepo.On("Create", mockModel).Return(nil).Once()
+		mockRepo.On("Create", issuerId, mockModel).Return(nil).Once()
 
 		service := NewBoardColumnUseCase(mockRepo)
-		err := service.CreateColumn(mockRequest)
+		err := service.CreateColumn(issuerId, mockRequest)
 
 		assert.NoError(t, err)
 		mockRepo.AssertExpectations(t)
@@ -109,10 +111,11 @@ func TestCreateColumn(t *testing.T) {
 			Label: "Column 1",
 			Desc:  "Column 1 description",
 		}
+		issuerId := uint(1)
 
 		mockRepo := repo.NewMockBoardColumnRepo()
 		service := NewBoardColumnUseCase(mockRepo)
-		err := service.CreateColumn(mockRequest)
+		err := service.CreateColumn(issuerId, mockRequest)
 
 		assert.Error(t, err)
 	})
@@ -129,13 +132,15 @@ func TestCreateColumn(t *testing.T) {
 			Desc:    mockRequest.Desc,
 			BoardID: mockRequest.BoardID,
 		}
+
+		issuerId := uint(1)
 		expectedErr := errors.New("Internal Server Error")
 
 		mockRepo := repo.NewMockBoardColumnRepo()
-		mockRepo.On("Create", mockModel).Return(expectedErr).Once()
+		mockRepo.On("Create", issuerId, mockModel).Return(expectedErr).Once()
 
 		service := NewBoardColumnUseCase(mockRepo)
-		err := service.CreateColumn(mockRequest)
+		err := service.CreateColumn(issuerId, mockRequest)
 
 		assert.Error(t, err)
 		mockRepo.AssertExpectations(t)
@@ -148,12 +153,14 @@ func TestUpdateColumn(t *testing.T) {
 			Label: "Column 1",
 			Desc:  "Column 1 description",
 		}
+		columnId := uint(1)
+		issuerId := uint(1)
 
 		mockRepo := repo.NewMockBoardColumnRepo()
-		mockRepo.On("Update", uint(1), mockRequest).Return(nil).Once()
+		mockRepo.On("Update", columnId, issuerId, mockRequest).Return(nil).Once()
 
 		service := NewBoardColumnUseCase(mockRepo)
-		err := service.UpdateColumn(uint(1), mockRequest)
+		err := service.UpdateColumn(columnId, issuerId, mockRequest)
 
 		assert.NoError(t, err)
 		mockRepo.AssertExpectations(t)
@@ -164,13 +171,15 @@ func TestUpdateColumn(t *testing.T) {
 			Label: "Column 1",
 			Desc:  "Column 1 description",
 		}
+		columnId := uint(1)
+		issuerId := uint(1)
 		expectedErr := errors.New("Internal Server Error")
 
 		mockRepo := repo.NewMockBoardColumnRepo()
-		mockRepo.On("Update", uint(1), mockRequest).Return(expectedErr).Once()
+		mockRepo.On("Update", columnId, issuerId, mockRequest).Return(expectedErr).Once()
 
 		service := NewBoardColumnUseCase(mockRepo)
-		err := service.UpdateColumn(uint(1), mockRequest)
+		err := service.UpdateColumn(columnId, issuerId, mockRequest)
 
 		assert.Error(t, err)
 		mockRepo.AssertExpectations(t)

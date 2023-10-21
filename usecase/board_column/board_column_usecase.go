@@ -13,8 +13,8 @@ var validate = validator.New(validator.WithRequiredStructEnabled())
 type BoardColumnUseCase interface {
 	GetColumns(boardId uint) ([]model.BoardColumn, error)
 	GetColumnById(id uint) (*model.BoardColumn, error)
-	CreateColumn(data *dto.BoardColumnRequest) error
-	UpdateColumn(id uint, data *dto.BoardColumnRequest) error
+	CreateColumn(issuerId uint, data *dto.BoardColumnRequest) error
+	UpdateColumn(id uint, issuerId uint, data *dto.BoardColumnRequest) error
 	DeleteColumn(id uint, issuerId uint) error
 }
 
@@ -44,7 +44,7 @@ func (b *boardColumnUseCase) GetColumnById(id uint) (*model.BoardColumn, error) 
 	return column, nil
 }
 
-func (b *boardColumnUseCase) CreateColumn(data *dto.BoardColumnRequest) error {
+func (b *boardColumnUseCase) CreateColumn(issuerId uint, data *dto.BoardColumnRequest) error {
 	if err := validate.Struct(*data); err != nil {
 		return err
 	}
@@ -55,20 +55,20 @@ func (b *boardColumnUseCase) CreateColumn(data *dto.BoardColumnRequest) error {
 		BoardID: data.BoardID,
 	}
 
-	if err := b.repo.Create(columnModel); err != nil {
+	if err := b.repo.Create(issuerId, columnModel); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (b *boardColumnUseCase) UpdateColumn(id uint, data *dto.BoardColumnRequest) error {
+func (b *boardColumnUseCase) UpdateColumn(id uint, issuerId uint, data *dto.BoardColumnRequest) error {
 	updatedData := &dto.BoardColumnRequest{
 		Label: data.Label,
 		Desc: data.Desc,
 	}
 
-	if err := b.repo.Update(id, updatedData); err != nil {
+	if err := b.repo.Update(id, issuerId, updatedData); err != nil {
 		return err
 	}
 
