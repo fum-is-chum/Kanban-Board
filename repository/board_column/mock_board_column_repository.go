@@ -33,13 +33,13 @@ func (m *mockBoardColumnRepository) GetById(id uint) (*model.BoardColumn, error)
 	return nil, ret.Error(1)
 }
 
-func (m *mockBoardColumnRepository) Create(data *model.BoardColumn) error {
-	ret := m.Called(data)
+func (m *mockBoardColumnRepository) Create(issuerId uint, data *model.BoardColumn) error {
+	ret := m.Called(issuerId, data)
 	return ret.Error(0)
 }
 
-func (m *mockBoardColumnRepository) Update(id uint, data *dto.BoardColumnRequest) error {
-	ret := m.Called(id, data)
+func (m *mockBoardColumnRepository) Update(id uint, issuerId uint, data *dto.BoardColumnRequest) error {
+	ret := m.Called(id, issuerId, data)
 	return ret.Error(0)
 }
 
