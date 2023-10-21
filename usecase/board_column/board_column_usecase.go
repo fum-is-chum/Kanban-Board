@@ -65,7 +65,7 @@ func (b *boardColumnUseCase) CreateColumn(issuerId uint, data *dto.BoardColumnRe
 func (b *boardColumnUseCase) UpdateColumn(id uint, issuerId uint, data *dto.BoardColumnRequest) error {
 	updatedData := &dto.BoardColumnRequest{
 		Label: data.Label,
-		Desc: data.Desc,
+		Desc:  data.Desc,
 	}
 
 	if err := b.repo.Update(id, issuerId, updatedData); err != nil {

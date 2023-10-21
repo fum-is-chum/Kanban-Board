@@ -3,9 +3,8 @@ package dto
 import "time"
 
 type BoardRequest struct {
-	Name    string `json:"name,omitempty" validate:"required"`
-	Desc    string `json:"desc,omitempty" validate:"required"`
-	OwnerID uint   `json:"owner_id,omitempty" validate:"required"`
+	Name string `json:"name,omitempty" validate:"required"`
+	Desc string `json:"desc,omitempty" validate:"required"`
 }
 
 type BoardResponse struct {

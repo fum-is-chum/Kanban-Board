@@ -56,8 +56,6 @@ func (u *userController) GetUser(c echo.Context) error {
 	}
 
 	var memberOf []*dto.BoardResponse
-
-	fmt.Print(user.MemberOf)
 	for _, board := range user.MemberOf {
 		memberOf = append(memberOf, &dto.BoardResponse{
 			ID:   board.ID,
