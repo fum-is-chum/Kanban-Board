@@ -33,13 +33,6 @@ func (b *boardController) GetBoards(c echo.Context) error {
 			ID:   value.ID,
 			Name: value.Name,
 			Desc: value.Desc,
-			Owner: &dto.MemberResponse{
-				ID:        value.Owner.ID,
-				Name:      value.Owner.Name,
-				Email:     value.Owner.Email,
-				CreatedAt: value.Owner.CreatedAt,
-				UpdatedAt: value.Owner.UpdatedAt,
-			},
 		})
 	}
 
@@ -82,13 +75,6 @@ func (b *boardController) GetBoardById(c echo.Context) error {
 		ID:   board.ID,
 		Name: board.Name,
 		Desc: board.Desc,
-		Owner: &dto.MemberResponse{
-			ID:        board.Owner.ID,
-			Name:      board.Owner.Name,
-			Email:     board.Owner.Email,
-			CreatedAt: board.Owner.CreatedAt,
-			UpdatedAt: board.Owner.UpdatedAt,
-		},
 		Members: members,
 		Columns: columns,
 	}))
