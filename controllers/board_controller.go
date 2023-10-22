@@ -72,9 +72,9 @@ func (b *boardController) GetBoardById(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, responseHelper.SuccessWithDataResponse(fmt.Sprintf("Success get board with id %d", id), dto.BoardResponse{
-		ID:   board.ID,
-		Name: board.Name,
-		Desc: board.Desc,
+		ID:      board.ID,
+		Name:    board.Name,
+		Desc:    board.Desc,
 		Members: members,
 		Columns: columns,
 	}))

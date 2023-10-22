@@ -6,11 +6,13 @@ import (
 	boardRepo "kanban-board/repository/board"
 	boardColumnRepo "kanban-board/repository/board_column"
 	boardMemberRepo "kanban-board/repository/board_member"
+	taskRepo "kanban-board/repository/task"
 	userRepo "kanban-board/repository/user"
 	authUsecase "kanban-board/usecase/auth"
 	boardUsecase "kanban-board/usecase/board"
 	boardColumnUsecase "kanban-board/usecase/board_column"
 	boardMemberUsecase "kanban-board/usecase/board_member"
+	taskUsecase "kanban-board/usecase/task"
 	userUsecase "kanban-board/usecase/user"
 
 	"github.com/labstack/echo/v4"
@@ -28,6 +30,7 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 	boardRepo := boardRepo.NewBoardRepository(db)
 	boardMemberRepo := boardMemberRepo.NewBoardMemberRepository(db)
 	boardColumnRepo := boardColumnRepo.NewBoardColumnRepository(db)
+	taskRepo := taskRepo.NewTaskRepository(db)
 
 	// Services
 	authService := authUsecase.NewAuthUseCase(userRepo)
@@ -35,6 +38,7 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 	boardService := boardUsecase.NewBoardUseCase(boardRepo)
 	boardMemberService := boardMemberUsecase.NewBoardMemberUseCase(boardMemberRepo)
 	boardColumnService := boardColumnUsecase.NewBoardColumnUseCase(boardColumnRepo)
+	taskService := taskUsecase.NewTaskUseCase(taskRepo)
 
 	// Controllers
 	authController := controller.NewAuthController(authService)
@@ -42,6 +46,7 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 	boardController := controller.NewBoardController(boardService)
 	boardMemberController := controller.NewBoardMemberController(boardMemberService)
 	boardColumnController := controller.NewBoardColumnController(boardColumnService)
+	taskController := controller.NewTaskController(taskService)
 	// -------------------------------------------------------------------------------
 
 	// Login
@@ -75,4 +80,12 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 	columnGroup.POST("", boardColumnController.CreateColumn, m.JWTMiddleware())
 	columnGroup.PUT("/:id", boardColumnController.UpdateColumn, m.JWTMiddleware())
 	columnGroup.DELETE("/:id", boardColumnController.DeleteColumn, m.JWTMiddleware())
+
+	// Tasks
+	taskGroup := e.Group("/tasks")
+	taskGroup.GET("", taskController.GetTasks, m.JWTMiddleware())
+	taskGroup.GET("/:id", taskController.GetTaskById, m.JWTMiddleware())
+	taskGroup.POST("", taskController.CreateTask, m.JWTMiddleware())
+	taskGroup.PUT("/:id", taskController.UpdateTask, m.JWTMiddleware())
+	taskGroup.DELETE("/:id", taskController.DeleteTask, m.JWTMiddleware())
 }
