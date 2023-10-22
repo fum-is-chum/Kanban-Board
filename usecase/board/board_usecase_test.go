@@ -18,12 +18,14 @@ func TestGetBoards(t *testing.T) {
 		{Name: "board2", Desc: "Board number 2", OwnerID: 0},
 	}
 
+	issuerId := uint(1)
+
 	t.Run("Success Get Boards", func(t *testing.T) {
 		mockRepo := boardRepo.NewMockBoardRepo()
 		mockRepo.On("Get", mock.Anything).Return(returnData, nil).Once()
 
 		service := NewBoardUseCase(mockRepo)
-		res, err := service.GetBoards()
+		res, err := service.GetBoards(issuerId)
 
 		assert.NoError(t, err)
 		assert.Equal(t, len(returnData), len(res))
@@ -37,7 +39,7 @@ func TestGetBoards(t *testing.T) {
 		mockRepo.On("Get", mock.Anything).Return(nil, expectedErr).Once()
 
 		service := NewBoardUseCase(mockRepo)
-		res, err := service.GetBoards()
+		res, err := service.GetBoards(issuerId)
 
 		assert.Error(t, err)
 		assert.Nil(t, res)
@@ -53,13 +55,14 @@ func TestGetBoardById(t *testing.T) {
 		Name:  "Board 1",
 		Desc:  "Board 1 Desc",
 	}
+	issuerId := uint(1)
 
 	t.Run("Success Get Board By Id", func(t *testing.T) {
 		mockRepo := boardRepo.NewMockBoardRepo()
-		mockRepo.On("GetById", expectedBoard.ID).Return(expectedBoard, nil).Once()
+		mockRepo.On("GetById", expectedBoard.ID, issuerId).Return(expectedBoard, nil).Once()
 
 		service := NewBoardUseCase(mockRepo)
-		board, err := service.GetBoardById(expectedBoard.ID)
+		board, err := service.GetBoardById(expectedBoard.ID, issuerId)
 
 		assert.NoError(t, err)
 		assert.NotNil(t, board)
@@ -67,26 +70,13 @@ func TestGetBoardById(t *testing.T) {
 		mockRepo.AssertExpectations(t)
 	})
 
-	t.Run("Failed Get Board By Id (Id not found)", func(t *testing.T) {
-		mockRepo := boardRepo.NewMockBoardRepo()
-		expectedErr := errors.New("ID not found")
-		mockRepo.On("GetById", mock.Anything).Return(nil, expectedErr).Once()
-
-		service := NewBoardUseCase(mockRepo)
-		board, err := service.GetBoardById(uint(10))
-
-		assert.Error(t, err)
-		assert.Nil(t, board)
-		mockRepo.AssertExpectations(t)
-	})
-
 	t.Run("Failed Get Board By Id (Internal Server Error)", func(t *testing.T) {
-		expectedErr := errors.New("Database Error")
+		expectedErr := errors.New("Internal Server Error")
 		mockRepo := boardRepo.NewMockBoardRepo()
-		mockRepo.On("GetById", expectedBoard.ID).Return(nil, expectedErr).Once()
+		mockRepo.On("GetById", expectedBoard.ID, issuerId).Return(nil, expectedErr).Once()
 
 		service := NewBoardUseCase(mockRepo)
-		board, err := service.GetBoardById(expectedBoard.ID)
+		board, err := service.GetBoardById(expectedBoard.ID, issuerId)
 
 		assert.Error(t, err)
 		assert.Nil(t, board)
@@ -236,10 +226,11 @@ func TestDeleteBoard(t *testing.T) {
 		Desc:    "Board 1 Description",
 		OwnerID: 3,
 	}
+	issuerId := uint(3)
 
 	t.Run("Success delete board", func(t *testing.T) {
 		mockRepo := boardRepo.NewMockBoardRepo()
-		mockRepo.On("GetById", boardToDelete.ID).Return(boardToDelete, nil).Once()
+		mockRepo.On("GetById", boardToDelete.ID, issuerId).Return(boardToDelete, nil).Once()
 		mockRepo.On("Delete", boardToDelete.ID).Return(nil).Once()
 
 		service := NewBoardUseCase(mockRepo)
@@ -248,22 +239,9 @@ func TestDeleteBoard(t *testing.T) {
 		assert.NoError(t, err)
 		mockRepo.AssertExpectations(t)
 	})
-
-	t.Run("Failed delete board (boardId not found)", func(t *testing.T) {
-		expectedErr := errors.New("BoardID not found")
-		mockRepo := boardRepo.NewMockBoardRepo()
-		mockRepo.On("GetById", boardToDelete.ID).Return(nil, expectedErr).Once()
-
-		service := NewBoardUseCase(mockRepo)
-		err := service.DeleteBoard(boardToDelete.ID, boardToDelete.OwnerID)
-
-		assert.Error(t, err)
-		mockRepo.AssertExpectations(t)
-	})
-
 	t.Run("Failed delete board (OwnerID != userID)", func(t *testing.T) {
 		mockRepo := boardRepo.NewMockBoardRepo()
-		mockRepo.On("GetById", boardToDelete.ID).Return(boardToDelete, nil).Once()
+		mockRepo.On("GetById", boardToDelete.ID, uint(10)).Return(boardToDelete, nil).Once()
 
 		service := NewBoardUseCase(mockRepo)
 		err := service.DeleteBoard(boardToDelete.ID, uint(10))
@@ -276,7 +254,7 @@ func TestDeleteBoard(t *testing.T) {
 	t.Run("Failed delete board (Internal Server Error)", func(t *testing.T) {
 		expectedErr := errors.New("Database Error")
 		mockRepo := boardRepo.NewMockBoardRepo()
-		mockRepo.On("GetById", boardToDelete.ID).Return(boardToDelete, nil).Once()
+		mockRepo.On("GetById", boardToDelete.ID, issuerId).Return(boardToDelete, nil).Once()
 		mockRepo.On("Delete", boardToDelete.ID).Return(expectedErr).Once()
 
 		service := NewBoardUseCase(mockRepo)

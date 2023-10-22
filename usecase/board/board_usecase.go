@@ -12,8 +12,8 @@ import (
 var validate = validator.New(validator.WithRequiredStructEnabled())
 
 type BoardUseCase interface {
-	GetBoards() ([]model.Board, error)
-	GetBoardById(id uint) (*model.Board, error)
+	GetBoards(issuerId uint) ([]model.Board, error)
+	GetBoardById(id uint, issuerId uint) (*model.Board, error)
 	CreateBoard(issuerId uint, data *dto.BoardRequest) error
 	UpdateBoard(id uint, issuerId uint, data *dto.BoardRequest) error
 	DeleteBoard(id uint, issuerId uint) error
@@ -27,8 +27,8 @@ func NewBoardUseCase(repo boardRepo.BoardRepository) *boardUseCase {
 	return &boardUseCase{repo}
 }
 
-func (b *boardUseCase) GetBoards() ([]model.Board, error) {
-	boards, err := b.repo.Get()
+func (b *boardUseCase) GetBoards(issuerId uint) ([]model.Board, error) {
+	boards, err := b.repo.Get(issuerId)
 	if err != nil {
 		return nil, err
 	}
@@ -36,8 +36,8 @@ func (b *boardUseCase) GetBoards() ([]model.Board, error) {
 	return boards, err
 }
 
-func (b *boardUseCase) GetBoardById(id uint) (*model.Board, error) {
-	board, err := b.repo.GetById(id)
+func (b *boardUseCase) GetBoardById(id uint, issuerId uint) (*model.Board, error) {
+	board, err := b.repo.GetById(id, issuerId)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (b *boardUseCase) UpdateBoard(id uint, issuerId uint, data *dto.BoardReques
 
 func (b *boardUseCase) DeleteBoard(id uint, issuerId uint) error {
 	// ensure user cannot delete other user's board
-	board, err := b.repo.GetById(id)
+	board, err := b.repo.GetById(id, issuerId)
 	if err != nil {
 		return err
 	}
