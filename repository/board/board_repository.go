@@ -37,7 +37,7 @@ func (b *boardRepository) Get(issuerId uint) ([]model.Board, error) {
 		boardIDs = append(boardIDs, member.BoardID)
 	}
 
-	if err := b.db.Where("id IN (?)", boardIDs).Order("created_at desc").Find(&boards).Error; err != nil {
+	if err := b.db.Where("id IN (?)", boardIDs).Preload("Owner").Order("created_at desc").Find(&boards).Error; err != nil {
 		return nil, err
 	}
 
@@ -52,7 +52,7 @@ func (b *boardRepository) GetById(id uint, issuerId uint) (*model.Board, error) 
 	}
 
 	var board model.Board
-	if err := b.db.Preload("Members").Preload("Columns.Tasks").Where("id = ?", id).First(&board).Error; err != nil {
+	if err := b.db.Where("id = ?", id).Preload("Owner").Preload("Members").Preload("Columns.Tasks").First(&board).Error; err != nil {
 		return nil, err
 	}
 
