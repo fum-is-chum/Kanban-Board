@@ -56,11 +56,21 @@ func (b *boardColumnController) GetColumn(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, responseHelper.FailedResponse(fmt.Sprintf("Error: %s", err.Error())))
 	}
 
+	var tasks []*dto.TaskResponse
+	for _, task := range column.Tasks {
+		tasks = append(tasks, &dto.TaskResponse{
+			ID:    task.ID,
+			Title: task.Title,
+			Desc:  task.Title,
+		})
+	}
+
 	return c.JSON(http.StatusOK, responseHelper.SuccessWithDataResponse(fmt.Sprintf("Success get column with id %d", id), dto.BoardColumnResponse{
 		ID:      column.ID,
 		Label:   column.Label,
 		Desc:    column.Desc,
 		BoardID: column.BoardID,
+		Tasks:   tasks,
 	}))
 }
 

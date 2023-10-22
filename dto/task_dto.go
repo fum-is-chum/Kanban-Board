@@ -17,5 +17,5 @@ type TaskResponse struct {
 	ID            uint   `json:"id"`
 	Title         string `json:"title"`
 	Desc          string `json:"desc"`
-	BoardColumnID uint   `json:"board_column_id"`
+	BoardColumnID uint   `json:"board_column_id,omitempty"`
 }

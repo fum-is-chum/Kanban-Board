@@ -52,7 +52,7 @@ func (b *boardRepository) GetById(id uint, issuerId uint) (*model.Board, error) 
 	}
 
 	var board model.Board
-	if err := b.db.Preload("Members").Preload("Columns").Where("id = ? AND owner_id = ?", id, issuerId).First(&board).Error; err != nil {
+	if err := b.db.Preload("Members").Preload("Columns.Tasks").Where("id = ?", id).First(&board).Error; err != nil {
 		return nil, err
 	}
 
