@@ -11,7 +11,6 @@ type BoardResponse struct {
 	ID      uint                   `json:"id"`
 	Name    string                 `json:"name"`
 	Desc    string                 `json:"desc"`
-	Owner   *MemberResponse        `json:"owner"`
 	Members []*MemberResponse      `json:"members"`
 	Columns []*BoardColumnResponse `json:"columns"`
 }
