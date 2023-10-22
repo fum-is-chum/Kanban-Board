@@ -52,29 +52,39 @@ func (b *boardController) GetBoardById(c echo.Context) error {
 	}
 
 	var members []*dto.MemberResponse
-	for _, value := range board.Members {
+	for _, member := range board.Members {
 		members = append(members, &dto.MemberResponse{
-			ID:        value.ID,
-			Name:      value.Name,
-			Email:     value.Email,
-			CreatedAt: value.CreatedAt,
-			UpdatedAt: value.UpdatedAt,
+			ID:        member.ID,
+			Name:      member.Name,
+			Email:     member.Email,
+			CreatedAt: member.CreatedAt,
+			UpdatedAt: member.UpdatedAt,
 		})
 	}
 
 	var columns []*dto.BoardColumnResponse
-	for _, value := range board.Columns {
+	for _, column := range board.Columns {
+		var tasks []*dto.TaskResponse // Create a slice to store tasks for this column
+		for _, task := range column.Tasks {
+			tasks = append(tasks, &dto.TaskResponse{
+				ID:    task.ID,
+				Title: task.Title,
+				Desc:  task.Desc,
+			})
+		}
+
 		columns = append(columns, &dto.BoardColumnResponse{
-			ID:    value.ID,
-			Label: value.Label,
-			Desc:  value.Desc,
+			ID:    column.ID,
+			Label: column.Label,
+			Desc:  column.Desc,
+			Tasks: tasks, // Include the tasks in the column response
 		})
 	}
 
 	return c.JSON(http.StatusOK, responseHelper.SuccessWithDataResponse(fmt.Sprintf("Success get board with id %d", id), dto.BoardResponse{
-		ID:   board.ID,
-		Name: board.Name,
-		Desc: board.Desc,
+		ID:      board.ID,
+		Name:    board.Name,
+		Desc:    board.Desc,
 		Members: members,
 		Columns: columns,
 	}))

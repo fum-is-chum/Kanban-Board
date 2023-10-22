@@ -37,7 +37,7 @@ func (b *boardColumnRepository) Get(boardId uint) ([]model.BoardColumn, error) {
 func (b *boardColumnRepository) GetById(id uint) (*model.BoardColumn, error) {
 	var column model.BoardColumn
 
-	if err := b.db.Where("id = ?", id).First(&column).Error; err != nil {
+	if err := b.db.Preload("Tasks").Where("id = ?", id).First(&column).Error; err != nil {
 		return nil, err
 	}
 
@@ -109,21 +109,18 @@ func (b *boardColumnRepository) Update(id uint, issuerId uint, data *dto.BoardCo
 func (b *boardColumnRepository) Delete(id uint, issuerId uint) error {
 	var column model.BoardColumn
 	var board model.Board
-
 	// get column
 	if err := b.db.Preload("Board").Where("id = ?", id).First(&column).Error; err != nil {
 		return err
 	}
 
 	board = *column.Board
-
 	// get board members
 	if err := b.db.Preload("Members").Where("id = ?", board.ID).First(&board).Error; err != nil {
 		return err
 	}
 
 	var issuerIsMember bool
-
 	for _, member := range board.Members {
 		if member.ID == issuerId {
 			issuerIsMember = true
