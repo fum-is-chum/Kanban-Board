@@ -15,8 +15,8 @@ func NewMockBoardRepo() *mockBoardRepository {
 	return &mockBoardRepository{}
 }
 
-func (m *mockBoardRepository) Get() ([]model.Board, error) {
-	ret := m.Called()
+func (m *mockBoardRepository) Get(issuerId uint) ([]model.Board, error) {
+	ret := m.Called(issuerId)
 	if boards, ok := ret.Get(0).([]model.Board); ok {
 		return boards, ret.Error(1)
 	}
@@ -34,8 +34,8 @@ func (m *mockBoardRepository) Update(id uint, issuerId uint, data *dto.BoardRequ
 	return ret.Error(0)
 }
 
-func (m *mockBoardRepository) GetById(id uint) (*model.Board, error) {
-	ret := m.Called(id)
+func (m *mockBoardRepository) GetById(id uint, issuerId uint) (*model.Board, error) {
+	ret := m.Called(id, issuerId)
 	if board, ok := ret.Get(0).(*model.Board); ok {
 		return board, ret.Error(1)
 	}

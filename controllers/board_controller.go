@@ -21,7 +21,8 @@ func NewBoardController(boardUsecase boardUsecase.BoardUseCase) *boardController
 }
 
 func (b *boardController) GetBoards(c echo.Context) error {
-	boards, err := b.useCase.GetBoards()
+	userID := m.ExtractTokenUserId(c)
+	boards, err := b.useCase.GetBoards(uint(userID))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, responseHelper.FailedResponse(fmt.Sprintf("Error: %s", err.Error())))
 	}
@@ -51,7 +52,8 @@ func (b *boardController) GetBoardById(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, responseHelper.FailedResponse("Bad Request: Invalid Id"))
 	}
 
-	board, err := b.useCase.GetBoardById(uint(id))
+	userID := m.ExtractTokenUserId(c)
+	board, err := b.useCase.GetBoardById(uint(id), uint(userID))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, responseHelper.FailedResponse(fmt.Sprintf("Error: %s", err.Error())))
 	}

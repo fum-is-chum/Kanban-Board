@@ -9,8 +9,8 @@ import (
 )
 
 type BoardRepository interface {
-	Get() ([]model.Board, error)
-	GetById(id uint) (*model.Board, error)
+	Get(issuerId uint) ([]model.Board, error)
+	GetById(id uint, issuerId uint) (*model.Board, error)
 	Create(data *model.Board) error
 	Update(id uint, issuerId uint, data *dto.BoardRequest) error
 	Delete(id uint) error
@@ -24,23 +24,36 @@ func NewBoardRepository(db *gorm.DB) *boardRepository {
 	return &boardRepository{db}
 }
 
-func (b *boardRepository) Get() ([]model.Board, error) {
+func (b *boardRepository) Get(issuerId uint) ([]model.Board, error) {
+	var members []model.BoardMember
+	var boardIDs []uint
 	var boards []model.Board
 
-	tx := b.db.Preload("Owner").Order("created_at desc").Find(&boards)
-	if tx.Error != nil {
-		return nil, tx.Error
+	if err := b.db.Where("user_id = ?", issuerId).Find(&members).Error; err != nil {
+		return nil, err
+	}
+
+	for _, member := range members {
+		boardIDs = append(boardIDs, member.BoardID)
+	}
+
+	if err := b.db.Preload("Owner").Where("id IN (?)", boardIDs).Order("created_at desc").Find(&boards).Error; err != nil {
+		return nil, err
 	}
 
 	return boards, nil
 }
 
-func (b *boardRepository) GetById(id uint) (*model.Board, error) {
-	var board model.Board
+func (b *boardRepository) GetById(id uint, issuerId uint) (*model.Board, error) {
+	// check if issuer is member of the board
+	var member model.BoardMember
+	if err := b.db.Where("board_id = ? AND user_id = ?", id, issuerId).First(&member).Error; err != nil {
+		return nil, err
+	}
 
-	tx := b.db.Preload("Owner").Preload("Members").Preload("Columns").Where("id = ?", id).First(&board)
-	if tx.Error != nil {
-		return nil, tx.Error
+	var board model.Board
+	if err := b.db.Preload("Owner").Preload("Members").Preload("Columns").Where("id = ? AND owner_id = ?", id, issuerId).First(&board).Error; err != nil {
+		return nil, err
 	}
 
 	return &board, nil
