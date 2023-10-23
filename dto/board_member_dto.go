@@ -3,8 +3,8 @@ package dto
 import "time"
 
 type BoardMemberRequest struct {
-	BoardID uint `json:"board_id" validate:"required"`
-	UserID  uint `json:"user_id" validate:"required"`
+	BoardID uint `json:"board_id,omitempty" validate:"required"`
+	UserID  uint `json:"user_id,omitempty" validate:"required"`
 }
 
 type BoardMemberResponse struct {
