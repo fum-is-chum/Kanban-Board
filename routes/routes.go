@@ -72,6 +72,7 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 	boardMemberGroup := e.Group("/board-members")
 	boardMemberGroup.POST("/add", boardMemberController.AddMember, m.JWTMiddleware())
 	boardMemberGroup.POST("/remove", boardMemberController.RemoveMember, m.JWTMiddleware())
+	boardMemberGroup.POST("/exit", boardMemberController.ExitBoard, m.JWTMiddleware())
 
 	// Board Column
 	columnGroup := e.Group("/board-columns")
