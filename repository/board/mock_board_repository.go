@@ -47,3 +47,21 @@ func (m *mockBoardRepository) Delete(id uint) error {
 	ret := m.Called(id)
 	return ret.Error(0)
 }
+
+func (m *mockBoardRepository) GetBoardMembers(id uint) ([]model.BoardMember, error) {
+	ret := m.Called(id)
+	if members, ok := ret.Get(0).([]model.BoardMember); ok {
+		return members, ret.Error(1)
+	}
+
+	return nil, ret.Error(1)
+}
+
+func (m *mockBoardRepository) GetBoardOwner(id uint) (*uint, error) {
+	ret := m.Called(id)
+	if ownerId, ok := ret.Get(0).(*uint); ok {
+		return ownerId, ret.Error(1)
+	}
+
+	return nil, ret.Error(1)
+}

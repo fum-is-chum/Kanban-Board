@@ -4,7 +4,8 @@ import (
 	"errors"
 	"kanban-board/dto"
 	"kanban-board/model"
-	repo "kanban-board/repository/board_member"
+	boardRepo "kanban-board/repository/board"
+	memberRepo "kanban-board/repository/board_member"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -41,77 +42,83 @@ var issuerId = uint(1)
 
 func TestIsOwner(t *testing.T) {
 	t.Run("Success isOwner", func(t *testing.T) {
-		mockRepo := repo.NewMockBoardMemberRepo()
-		mockRepo.On("GetBoardOwner", mockBoardData.ID).Return(&issuerId, nil).Once()
+		mockBoardRepo := boardRepo.NewMockBoardRepo()
+		mockMemberRepo := memberRepo.NewMockBoardMemberRepo()
+		mockBoardRepo.On("GetBoardOwner", mockBoardData.ID).Return(&issuerId, nil).Once()
 
-		service := NewBoardMemberUseCase(mockRepo)
+		service := NewBoardMemberUseCase(mockBoardRepo, mockMemberRepo)
 		err := service.isOwner(issuerId, mockBoardData.ID)
 
 		assert.NoError(t, err)
-		mockRepo.AssertExpectations(t)
+		mockBoardRepo.AssertExpectations(t)
 	})
 
 	t.Run("Failed isOwner (Not owner)", func(t *testing.T) {
 		expectedErr := errors.New("User is not owner of this board!")
-		mockRepo := repo.NewMockBoardMemberRepo()
-		mockRepo.On("GetBoardOwner", mockBoardData.ID).Return(&issuerId, nil).Once()
+		mockBoardRepo := boardRepo.NewMockBoardRepo()
+		mockMemberRepo := memberRepo.NewMockBoardMemberRepo()
+		mockBoardRepo.On("GetBoardOwner", mockBoardData.ID).Return(&issuerId, nil).Once()
 
-		service := NewBoardMemberUseCase(mockRepo)
+		service := NewBoardMemberUseCase(mockBoardRepo, mockMemberRepo)
 		err := service.isOwner(uint(10), mockBoardData.ID)
 
 		assert.Error(t, err)
 		assert.Equal(t, err.Error(), expectedErr.Error())
-		mockRepo.AssertExpectations(t)
+		mockBoardRepo.AssertExpectations(t)
 	})
 
 	t.Run("Failed isOwner (Internal Server Error)", func(t *testing.T) {
 		expectedErr := errors.New("Internal Server Error")
-		mockRepo := repo.NewMockBoardMemberRepo()
-		mockRepo.On("GetBoardOwner", mockBoardData.ID).Return(nil, expectedErr).Once()
+		mockBoardRepo := boardRepo.NewMockBoardRepo()
+		mockMemberRepo := memberRepo.NewMockBoardMemberRepo()
+		mockBoardRepo.On("GetBoardOwner", mockBoardData.ID).Return(nil, expectedErr).Once()
 
-		service := NewBoardMemberUseCase(mockRepo)
+		service := NewBoardMemberUseCase(mockBoardRepo, mockMemberRepo)
 		err := service.isOwner(issuerId, mockBoardData.ID)
 
 		assert.Error(t, err)
-		mockRepo.AssertExpectations(t)
+		mockBoardRepo.AssertExpectations(t)
 	})
 }
 
 func TestIsMember(t *testing.T) {
 	t.Run("Success isMember", func(t *testing.T) {
-		mockRepo := repo.NewMockBoardMemberRepo()
-		mockRepo.On("GetBoardMembers", mockBoardData.ID).Return(boardMembers, nil).Once()
+		mockBoardRepo := boardRepo.NewMockBoardRepo()
+		mockMemberRepo := memberRepo.NewMockBoardMemberRepo()
+		mockBoardRepo.On("GetBoardMembers", mockBoardData.ID).Return(boardMembers, nil).Once()
 
-		service := NewBoardMemberUseCase(mockRepo)
+		service := NewBoardMemberUseCase(mockBoardRepo, mockMemberRepo)
 		err := service.isMember(issuerId, mockBoardData.ID)
 
 		assert.NoError(t, err)
-		mockRepo.AssertExpectations(t)
+		mockBoardRepo.AssertExpectations(t)
 	})
 
 	t.Run("Failed isMember (Not a member)", func(t *testing.T) {
 		expectedErr := errors.New("User is not member of this board!")
-		mockRepo := repo.NewMockBoardMemberRepo()
-		mockRepo.On("GetBoardMembers", mockBoardData.ID).Return(boardMembers, nil).Once()
+		mockBoardRepo := boardRepo.NewMockBoardRepo()
+		mockMemberRepo := memberRepo.NewMockBoardMemberRepo()
+		mockBoardRepo.On("GetBoardMembers", mockBoardData.ID).Return(boardMembers, nil).Once()
 
-		service := NewBoardMemberUseCase(mockRepo)
+		service := NewBoardMemberUseCase(mockBoardRepo, mockMemberRepo)
 		err := service.isMember(uint(10), mockBoardData.ID)
 
 		assert.Error(t, err)
 		assert.Equal(t, err.Error(), expectedErr.Error())
-		mockRepo.AssertExpectations(t)
+		mockBoardRepo.AssertExpectations(t)
 	})
 
 	t.Run("Failed isMember (Internal Server Error)", func(t *testing.T) {
 		expectedErr := errors.New("Internal Server Error")
-		mockRepo := repo.NewMockBoardMemberRepo()
-		mockRepo.On("GetBoardMembers", mockBoardData.ID).Return(nil, expectedErr).Once()
+		mockBoardRepo := boardRepo.NewMockBoardRepo()
+		mockMemberRepo := memberRepo.NewMockBoardMemberRepo()
+		mockBoardRepo.On("GetBoardMembers", mockBoardData.ID).Return(nil, expectedErr).Once()
 
-		service := NewBoardMemberUseCase(mockRepo)
+		service := NewBoardMemberUseCase(mockBoardRepo, mockMemberRepo)
 		err := service.isMember(issuerId, mockBoardData.ID)
 
 		assert.Error(t, err)
-		mockRepo.AssertExpectations(t)
+		mockBoardRepo.AssertExpectations(t)
 	})
 }
 
@@ -122,23 +129,26 @@ func TestAddMember(t *testing.T) {
 			UserID:  mockUserData.ID,
 		}
 
-		mockRepo := repo.NewMockBoardMemberRepo()
-		mockRepo.On("GetBoardOwner", mockRequest.BoardID).Return(&issuerId, nil).Once()
-		mockRepo.On("AddMember", mockRequest.BoardID, mockRequest.UserID).Return(nil).Once()
+		mockBoardRepo := boardRepo.NewMockBoardRepo()
+		mockMemberRepo := memberRepo.NewMockBoardMemberRepo()
+		mockBoardRepo.On("GetBoardOwner", mockRequest.BoardID).Return(&issuerId, nil).Once()
+		mockMemberRepo.On("AddMember", mockRequest.BoardID, mockRequest.UserID).Return(nil).Once()
 
-		service := NewBoardMemberUseCase(mockRepo)
+		service := NewBoardMemberUseCase(mockBoardRepo, mockMemberRepo)
 		err := service.AddMember(issuerId, mockRequest)
 
 		assert.NoError(t, err, nil)
-		mockRepo.AssertExpectations(t)
+		mockMemberRepo.AssertExpectations(t)
+		mockBoardRepo.AssertExpectations(t)
 	})
 
 	t.Run("Failed Add Member (struct error)", func(t *testing.T) {
 		mockRequest := &dto.BoardMemberRequest{}
 
-		mockRepo := repo.NewMockBoardMemberRepo()
+		mockBoardRepo := boardRepo.NewMockBoardRepo()
+		mockMemberRepo := memberRepo.NewMockBoardMemberRepo()
 
-		service := NewBoardMemberUseCase(mockRepo)
+		service := NewBoardMemberUseCase(mockBoardRepo, mockMemberRepo)
 		err := service.AddMember(issuerId, mockRequest)
 
 		assert.Error(t, err)
@@ -151,15 +161,16 @@ func TestAddMember(t *testing.T) {
 		}
 		expectedErr := errors.New("User is not owner of this board!")
 
-		mockRepo := repo.NewMockBoardMemberRepo()
-		mockRepo.On("GetBoardOwner", mockRequest.BoardID).Return(&issuerId, nil).Once()
+		mockBoardRepo := boardRepo.NewMockBoardRepo()
+		mockMemberRepo := memberRepo.NewMockBoardMemberRepo()
+		mockBoardRepo.On("GetBoardOwner", mockRequest.BoardID).Return(&issuerId, nil).Once()
 
-		service := NewBoardMemberUseCase(mockRepo)
+		service := NewBoardMemberUseCase(mockBoardRepo, mockMemberRepo)
 		err := service.AddMember(uint(10), mockRequest)
 
 		assert.Error(t, err)
 		assert.Equal(t, err.Error(), expectedErr.Error())
-		mockRepo.AssertExpectations(t)
+		mockBoardRepo.AssertExpectations(t)
 	})
 
 	t.Run("Failed Add Member (Internal Server Error)", func(t *testing.T) {
@@ -169,15 +180,17 @@ func TestAddMember(t *testing.T) {
 		}
 		expectedErr := errors.New("Internal Server Error")
 
-		mockRepo := repo.NewMockBoardMemberRepo()
-		mockRepo.On("GetBoardOwner", mockRequest.BoardID).Return(&issuerId, nil).Once()
-		mockRepo.On("AddMember", mockRequest.BoardID, mockRequest.UserID).Return(expectedErr).Once()
+		mockBoardRepo := boardRepo.NewMockBoardRepo()
+		mockMemberRepo := memberRepo.NewMockBoardMemberRepo()
+		mockBoardRepo.On("GetBoardOwner", mockRequest.BoardID).Return(&issuerId, nil).Once()
+		mockMemberRepo.On("AddMember", mockRequest.BoardID, mockRequest.UserID).Return(expectedErr).Once()
 
-		service := NewBoardMemberUseCase(mockRepo)
+		service := NewBoardMemberUseCase(mockBoardRepo, mockMemberRepo)
 		err := service.AddMember(issuerId, mockRequest)
 
 		assert.Error(t, err)
-		mockRepo.AssertExpectations(t)
+		mockMemberRepo.AssertExpectations(t)
+		mockBoardRepo.AssertExpectations(t)
 	})
 }
 
@@ -188,23 +201,26 @@ func TestDeleteMember(t *testing.T) {
 			UserID:  mockUserData.ID,
 		}
 
-		mockRepo := repo.NewMockBoardMemberRepo()
-		mockRepo.On("GetBoardOwner", mockRequest.BoardID).Return(&issuerId, nil).Once()
-		mockRepo.On("DeleteMember", mockRequest.BoardID, mockRequest.UserID).Return(nil).Once()
+		mockBoardRepo := boardRepo.NewMockBoardRepo()
+		mockMemberRepo := memberRepo.NewMockBoardMemberRepo()
+		mockBoardRepo.On("GetBoardOwner", mockRequest.BoardID).Return(&issuerId, nil).Once()
+		mockMemberRepo.On("DeleteMember", mockRequest.BoardID, mockRequest.UserID).Return(nil).Once()
 
-		service := NewBoardMemberUseCase(mockRepo)
+		service := NewBoardMemberUseCase(mockBoardRepo, mockMemberRepo)
 		err := service.DeleteMember(issuerId, mockRequest)
 
 		assert.NoError(t, err, nil)
-		mockRepo.AssertExpectations(t)
+		mockMemberRepo.AssertExpectations(t)
+		mockBoardRepo.AssertExpectations(t)
 	})
 
 	t.Run("Failed Delete Member (struct error)", func(t *testing.T) {
 		mockRequest := &dto.BoardMemberRequest{}
 
-		mockRepo := repo.NewMockBoardMemberRepo()
+		mockBoardRepo := boardRepo.NewMockBoardRepo()
+		mockMemberRepo := memberRepo.NewMockBoardMemberRepo()
 
-		service := NewBoardMemberUseCase(mockRepo)
+		service := NewBoardMemberUseCase(mockBoardRepo, mockMemberRepo)
 		err := service.DeleteMember(issuerId, mockRequest)
 
 		assert.Error(t, err)
@@ -217,15 +233,16 @@ func TestDeleteMember(t *testing.T) {
 		}
 		expectedErr := errors.New("User is not owner of this board!")
 
-		mockRepo := repo.NewMockBoardMemberRepo()
-		mockRepo.On("GetBoardOwner", mockRequest.BoardID).Return(&issuerId, nil).Once()
+		mockBoardRepo := boardRepo.NewMockBoardRepo()
+		mockMemberRepo := memberRepo.NewMockBoardMemberRepo()
+		mockBoardRepo.On("GetBoardOwner", mockRequest.BoardID).Return(&issuerId, nil).Once()
 
-		service := NewBoardMemberUseCase(mockRepo)
+		service := NewBoardMemberUseCase(mockBoardRepo, mockMemberRepo)
 		err := service.DeleteMember(uint(10), mockRequest)
 
 		assert.Error(t, err)
 		assert.Equal(t, err.Error(), expectedErr.Error())
-		mockRepo.AssertExpectations(t)
+		mockBoardRepo.AssertExpectations(t)
 	})
 
 	t.Run("Failed Delete Member (Internal Server Error)", func(t *testing.T) {
@@ -235,54 +252,61 @@ func TestDeleteMember(t *testing.T) {
 		}
 		expectedErr := errors.New("Internal Server Error")
 
-		mockRepo := repo.NewMockBoardMemberRepo()
-		mockRepo.On("GetBoardOwner", mockRequest.BoardID).Return(&issuerId, nil).Once()
-		mockRepo.On("DeleteMember", mockRequest.BoardID, mockRequest.UserID).Return(expectedErr).Once()
+		mockBoardRepo := boardRepo.NewMockBoardRepo()
+		mockMemberRepo := memberRepo.NewMockBoardMemberRepo()
+		mockBoardRepo.On("GetBoardOwner", mockRequest.BoardID).Return(&issuerId, nil).Once()
+		mockMemberRepo.On("DeleteMember", mockRequest.BoardID, mockRequest.UserID).Return(expectedErr).Once()
 
-		service := NewBoardMemberUseCase(mockRepo)
+		service := NewBoardMemberUseCase(mockBoardRepo, mockMemberRepo)
 		err := service.DeleteMember(issuerId, mockRequest)
 
 		assert.Error(t, err)
-		mockRepo.AssertExpectations(t)
+		mockMemberRepo.AssertExpectations(t)
+		mockBoardRepo.AssertExpectations(t)
 	})
 }
 
 func TestExitBoard(t *testing.T) {
 	t.Run("Success exit board", func(t *testing.T) {
-		mockRepo := repo.NewMockBoardMemberRepo()
-		mockRepo.On("GetBoardMembers", mockBoardData.ID).Return(boardMembers, nil).Once()
-		mockRepo.On("DeleteMember", mockBoardData.ID, issuerId).Return(nil).Once()
+		mockBoardRepo := boardRepo.NewMockBoardRepo()
+		mockMemberRepo := memberRepo.NewMockBoardMemberRepo()
+		mockBoardRepo.On("GetBoardMembers", mockBoardData.ID).Return(boardMembers, nil).Once()
+		mockMemberRepo.On("DeleteMember", mockBoardData.ID, issuerId).Return(nil).Once()
 
-		service := NewBoardMemberUseCase(mockRepo)
+		service := NewBoardMemberUseCase(mockBoardRepo, mockMemberRepo)
 		err := service.ExitBoard(issuerId, mockBoardData.ID)
 
 		assert.NoError(t, err)
-		mockRepo.AssertExpectations(t)
+		mockMemberRepo.AssertExpectations(t)
+		mockBoardRepo.AssertExpectations(t)
 	})
 
 	t.Run("Failed exit board (user is not member)", func(t *testing.T) {
 		expectedErr := errors.New("User is not member of this board!")
-		mockRepo := repo.NewMockBoardMemberRepo()
-		mockRepo.On("GetBoardMembers", mockBoardData.ID).Return(boardMembers, nil).Once()
+		mockBoardRepo := boardRepo.NewMockBoardRepo()
+		mockMemberRepo := memberRepo.NewMockBoardMemberRepo()
+		mockBoardRepo.On("GetBoardMembers", mockBoardData.ID).Return(boardMembers, nil).Once()
 
-		service := NewBoardMemberUseCase(mockRepo)
+		service := NewBoardMemberUseCase(mockBoardRepo, mockMemberRepo)
 		err := service.ExitBoard(uint(10), mockBoardData.ID)
 
 		assert.Error(t, err)
 		assert.Equal(t, err.Error(), expectedErr.Error())
-		mockRepo.AssertExpectations(t)
+		mockBoardRepo.AssertExpectations(t)
 	})
 
   	t.Run("Failed exit board (Internal Server Error)", func(t *testing.T) {
 		expectedErr := errors.New("Internal Server Error")
-		mockRepo := repo.NewMockBoardMemberRepo()
-		mockRepo.On("GetBoardMembers", mockBoardData.ID).Return(boardMembers, nil).Once()
-		mockRepo.On("DeleteMember", mockBoardData.ID, issuerId).Return(expectedErr).Once()
+		mockBoardRepo := boardRepo.NewMockBoardRepo()
+		mockMemberRepo := memberRepo.NewMockBoardMemberRepo()
+		mockBoardRepo.On("GetBoardMembers", mockBoardData.ID).Return(boardMembers, nil).Once()
+		mockMemberRepo.On("DeleteMember", mockBoardData.ID, issuerId).Return(expectedErr).Once()
 
-		service := NewBoardMemberUseCase(mockRepo)
+		service := NewBoardMemberUseCase(mockBoardRepo, mockMemberRepo)
 		err := service.ExitBoard(issuerId, mockBoardData.ID)
 
 		assert.Error(t, err)
-		mockRepo.AssertExpectations(t)
+		mockMemberRepo.AssertExpectations(t)
+		mockBoardRepo.AssertExpectations(t)
 	})
 }

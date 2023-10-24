@@ -14,6 +14,8 @@ type BoardRepository interface {
 	Create(data *model.Board) error
 	Update(id uint, issuerId uint, data *dto.BoardRequest) error
 	Delete(id uint) error
+	GetBoardOwner(id uint) (*uint, error)
+	GetBoardMembers(id uint) ([]model.BoardMember, error)
 }
 
 type boardRepository struct {
@@ -121,4 +123,22 @@ func (b *boardRepository) Delete(id uint) error {
 	}
 
 	return nil
+}
+
+func (b *boardRepository) GetBoardOwner(id uint) (*uint, error) {
+	var board model.Board
+	if err := b.db.First(&board, id).Error; err != nil {
+		return nil, err
+	}
+
+	return &board.OwnerID, nil
+}
+
+func (b *boardRepository) GetBoardMembers(id uint) ([]model.BoardMember, error) {
+	var boardMembers []model.BoardMember
+	if err := b.db.Model(&model.BoardMember{}).Where("board_id = ?", id).Find(&boardMembers).Error; err != nil {
+		return nil, err
+	}
+
+	return boardMembers, nil
 }
