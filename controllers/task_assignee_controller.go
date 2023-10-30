@@ -5,61 +5,61 @@ import (
 	"kanban-board/dto"
 	responseHelper "kanban-board/helpers/response"
 	m "kanban-board/middlewares"
-	boardMemberUsecase "kanban-board/usecase/board_member"
+	assigneeUsecase "kanban-board/usecase/task_assignee"
 	"net/http"
 	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
 
-type boardMemberController struct {
-	useCase boardMemberUsecase.BoardMemberUseCase
+type taskAssigneeController struct {
+	useCase assigneeUsecase.TaskAssigneeUseCase
 }
 
-func NewBoardMemberController(useCase boardMemberUsecase.BoardMemberUseCase) *boardMemberController {
-	return &boardMemberController{useCase}
+func NewTaskAssigneeController(useCase assigneeUsecase.TaskAssigneeUseCase) *taskAssigneeController {
+	return &taskAssigneeController{useCase}
 }
 
-func (b *boardMemberController) AddMember(c echo.Context) error {
-	var request dto.BoardMemberRequest
+func (t *taskAssigneeController) AddAssignee(c echo.Context) error {
+	var request dto.TaskAssigneeRequest
 
 	if err := c.Bind(&request); err != nil {
 		return c.JSON(http.StatusBadRequest, responseHelper.FailedResponse(fmt.Sprintf("Bad Request: %s", err.Error())))
 	}
 
 	userID := m.ExtractTokenUserId(c)
-	if err := b.useCase.AddMember(uint(userID), &request); err != nil {
+	if err := t.useCase.AddAssignee(uint(userID), &request); err != nil {
 		return c.JSON(http.StatusInternalServerError, responseHelper.FailedResponse(fmt.Sprintf("Error: %s", err.Error())))
 	}
 
-	return c.JSON(http.StatusOK, responseHelper.SuccessResponse("Success add member to board"))
+	return c.JSON(http.StatusOK, responseHelper.SuccessResponse("Success add assignee to task"))
 }
 
-func (b *boardMemberController) RemoveMember(c echo.Context) error {
-	var request dto.BoardMemberRequest
+func (t *taskAssigneeController) RemoveAssignee(c echo.Context) error {
+	var request dto.TaskAssigneeRequest
 
 	if err := c.Bind(&request); err != nil {
 		return c.JSON(http.StatusBadRequest, responseHelper.FailedResponse(fmt.Sprintf("Bad Request: %s", err.Error())))
 	}
 
 	userID := m.ExtractTokenUserId(c)
-	if err := b.useCase.DeleteMember(uint(userID), &request); err != nil {
+	if err := t.useCase.DeleteAssignee(uint(userID), &request); err != nil {
 		return c.JSON(http.StatusInternalServerError, responseHelper.FailedResponse(fmt.Sprintf("Error: %s", err.Error())))
 	}
 
-	return c.JSON(http.StatusOK, responseHelper.SuccessResponse("Success delete member from board"))
+	return c.JSON(http.StatusOK, responseHelper.SuccessResponse("Success delete assignee from task"))
 }
 
-func (b *boardMemberController) ExitBoard(c echo.Context) error {
-	boardId, err := strconv.Atoi(c.QueryParam("boardId"))
+func (t *taskAssigneeController) ExitTask(c echo.Context) error {
+	taskId, err := strconv.Atoi(c.QueryParam("taskId"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, responseHelper.FailedResponse(fmt.Sprintf("Bad Request: %s", err.Error())))
 	}
 
 	userID := m.ExtractTokenUserId(c)
-	if err := b.useCase.ExitBoard(uint(userID), uint(boardId)); err != nil {
+	if err := t.useCase.ExitTask(uint(userID), uint(taskId)); err != nil {
 		return c.JSON(http.StatusInternalServerError, responseHelper.FailedResponse(fmt.Sprintf("Error: %s", err.Error())))
 	}
 
-	return c.JSON(http.StatusOK, responseHelper.SuccessResponse("Success exit from board"))
+	return c.JSON(http.StatusOK, responseHelper.SuccessResponse("Success exit from task"))	
 }

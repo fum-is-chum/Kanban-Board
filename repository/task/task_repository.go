@@ -36,7 +36,7 @@ func (t *taskRepository) Get(boardId uint) ([]model.Task, error) {
 
 func (t *taskRepository) GetById(id uint, issuerId uint) (*model.Task, error) {
 	var task model.Task
-	if err := t.db.Where("id = ?", id).First(&task).Error; err != nil {
+	if err := t.db.Where("id = ?", id).Preload("Assignees").First(&task).Error; err != nil {
 		return nil, err
 	}
 
