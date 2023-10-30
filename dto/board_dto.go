@@ -9,7 +9,7 @@ type BoardResponse struct {
 	ID      uint                   `json:"id"`
 	Name    string                 `json:"name"`
 	Desc    string                 `json:"desc"`
-	Owner   *BoardMemberResponse   `json:"owner"`
+	Owner   *BoardMemberResponse   `json:"owner,omitempty"`
 	Members []*BoardMemberResponse `json:"members"`
 	Columns []*BoardColumnResponse `json:"columns"`
 }
