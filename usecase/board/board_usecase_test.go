@@ -12,6 +12,21 @@ import (
 	"gorm.io/gorm"
 )
 
+var mockMembersData = []model.BoardMember{
+	{
+		BoardID: uint(1),
+		UserID:  uint(1),
+	},
+	{
+		BoardID: uint(1),
+		UserID:  uint(2),
+	},
+	{
+		BoardID: uint(1),
+		UserID:  uint(3),
+	},
+}
+
 func TestGetBoards(t *testing.T) {
 	returnData := []model.Board{
 		{Name: "board1", Desc: "Board number 1", OwnerID: 0},
@@ -176,6 +191,7 @@ func TestUpdateBoard(t *testing.T) {
 		issuerId := uint(3)
 
 		mockRepo := boardRepo.NewMockBoardRepo()
+		mockRepo.On("GetBoardMembers", boardToUpdate.ID).Return(mockMembersData, nil).Once()
 		mockRepo.On("Update", boardToUpdate.ID, issuerId, boardRequest).Return(nil).Once()
 
 		service := NewBoardUseCase(mockRepo)
@@ -192,12 +208,31 @@ func TestUpdateBoard(t *testing.T) {
 		issuerId := uint(3)
 
 		mockRepo := boardRepo.NewMockBoardRepo()
+		mockRepo.On("GetBoardMembers", boardToUpdate.ID).Return(mockMembersData, nil).Once()
 		mockRepo.On("Update", boardToUpdate.ID, issuerId, boardRequest).Return(nil).Once()
 
 		service := NewBoardUseCase(mockRepo)
 		err := service.UpdateBoard(boardToUpdate.ID, issuerId, boardRequest)
 
 		assert.NoError(t, err)
+		mockRepo.AssertExpectations(t)
+	})
+
+	t.Run("Failed Update Board (isMember false)", func(t *testing.T) {
+		boardRequest := &dto.BoardRequest{
+			Desc: "New Description",
+		}
+		issuerId := uint(10)
+		expectedErr := errors.New("User is not member of this board!")
+
+		mockRepo := boardRepo.NewMockBoardRepo()
+		mockRepo.On("GetBoardMembers", boardToUpdate.ID).Return(mockMembersData, nil).Once()
+
+		service := NewBoardUseCase(mockRepo)
+		err := service.UpdateBoard(boardToUpdate.ID, issuerId, boardRequest)
+
+		assert.Error(t, err)
+		assert.Equal(t, err.Error(), expectedErr.Error())
 		mockRepo.AssertExpectations(t)
 	})
 
@@ -209,6 +244,7 @@ func TestUpdateBoard(t *testing.T) {
 
 		expectedErr := errors.New("Database Error")
 		mockRepo := boardRepo.NewMockBoardRepo()
+		mockRepo.On("GetBoardMembers", boardToUpdate.ID).Return(mockMembersData, nil).Once()
 		mockRepo.On("Update", boardToUpdate.ID, issuerId, boardRequest).Return(expectedErr).Once()
 
 		service := NewBoardUseCase(mockRepo)

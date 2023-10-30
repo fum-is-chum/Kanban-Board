@@ -26,7 +26,8 @@ func (t *taskController) GetTasks(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, responseHelper.FailedResponse("Bad Request: ID invalid"))
 	}
 
-	tasks, err := t.useCase.GetTasks(uint(boardId))
+	userID := m.ExtractTokenUserId(c)
+	tasks, err := t.useCase.GetTasks(uint(boardId), uint(userID))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, responseHelper.FailedResponse(fmt.Sprintf("Error: %s", err.Error())))
 	}

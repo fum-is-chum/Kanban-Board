@@ -23,6 +23,24 @@ type boardUseCase struct {
 	repo boardRepo.BoardRepository
 }
 
+func (b *boardUseCase) isMember(userId uint, boardId uint) error {
+	// check if user is member of the board
+	members, err := b.repo.GetBoardMembers(boardId)
+	if err != nil {
+		return err
+	}
+
+	for _, member := range members {
+		if member.UserID == userId {
+			return nil
+		}
+	}
+
+	return errors.New("User is not member of this board!")
+}
+// ------------------------------------------------------------------------
+
+
 func NewBoardUseCase(repo boardRepo.BoardRepository) *boardUseCase {
 	return &boardUseCase{repo}
 }
@@ -65,6 +83,11 @@ func (b *boardUseCase) CreateBoard(issuerId uint, data *dto.BoardRequest) error 
 }
 
 func (b *boardUseCase) UpdateBoard(id uint, issuerId uint, data *dto.BoardRequest) error {
+	// check board member
+	if err := b.isMember(issuerId, id); err != nil {
+		return err
+	}
+	
 	updatedData := &dto.BoardRequest{
 		Name: data.Name,
 		Desc: data.Desc,
