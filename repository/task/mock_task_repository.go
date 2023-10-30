@@ -47,3 +47,21 @@ func (m *mockTaskRepository) Delete(id uint, issuerId uint) error {
 	ret := m.Called(id, issuerId)
 	return ret.Error(0)
 }
+
+func (m *mockTaskRepository) GetBoardIdByColumnId(columnId uint) (*uint, error) {
+	ret := m.Called(columnId)
+	if boardId, ok := ret.Get(0).(*uint); ok {
+		return boardId, ret.Error(1)
+	}
+
+	return nil, ret.Error(1)
+}
+
+func (m *mockTaskRepository) GetBoardIdByTaskId(taskId uint) (*uint, error) {
+	ret := m.Called(taskId)
+	if boardId, ok := ret.Get(0).(*uint); ok {
+		return boardId, ret.Error(1)
+	}
+
+	return nil, ret.Error(1)
+}

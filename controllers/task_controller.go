@@ -26,7 +26,8 @@ func (t *taskController) GetTasks(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, responseHelper.FailedResponse("Bad Request: ID invalid"))
 	}
 
-	tasks, err := t.useCase.GetTasks(uint(boardId))
+	userID := m.ExtractTokenUserId(c)
+	tasks, err := t.useCase.GetTasks(uint(boardId), uint(userID))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, responseHelper.FailedResponse(fmt.Sprintf("Error: %s", err.Error())))
 	}
@@ -56,11 +57,22 @@ func (t *taskController) GetTaskById(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, responseHelper.FailedResponse(fmt.Sprintf("Error: %s", err.Error())))
 	}
 
+	var assignees []*dto.TaskAssigneeResponse
+	for _, assignee := range task.Assignees {
+		assignees = append(assignees, &dto.TaskAssigneeResponse{
+			ID: assignee.ID,
+			Name: assignee.Name,
+			Email: assignee.Email,
+		})
+	}
+	
+
 	return c.JSON(http.StatusOK, responseHelper.SuccessWithDataResponse(fmt.Sprintf("Success Get Task with id %d", id), &dto.TaskResponse{
 		ID:            task.ID,
 		Title:         task.Title,
 		Desc:          task.Desc,
 		BoardColumnID: task.BoardColumnID,
+		Assignees: assignees,
 	}))
 }
 

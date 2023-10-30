@@ -7,12 +7,14 @@ import (
 	boardColumnRepo "kanban-board/repository/board_column"
 	boardMemberRepo "kanban-board/repository/board_member"
 	taskRepo "kanban-board/repository/task"
+	assigneeRepo "kanban-board/repository/task_assignee"
 	userRepo "kanban-board/repository/user"
 	authUsecase "kanban-board/usecase/auth"
 	boardUsecase "kanban-board/usecase/board"
 	boardColumnUsecase "kanban-board/usecase/board_column"
 	boardMemberUsecase "kanban-board/usecase/board_member"
 	taskUsecase "kanban-board/usecase/task"
+	assigneeUsecase "kanban-board/usecase/task_assignee"
 	userUsecase "kanban-board/usecase/user"
 
 	"github.com/labstack/echo/v4"
@@ -31,14 +33,16 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 	boardMemberRepo := boardMemberRepo.NewBoardMemberRepository(db)
 	boardColumnRepo := boardColumnRepo.NewBoardColumnRepository(db)
 	taskRepo := taskRepo.NewTaskRepository(db)
+	assigneeRepo := assigneeRepo.NewTaskAssigneeRepository(db)
 
 	// Services
 	authService := authUsecase.NewAuthUseCase(userRepo)
 	userService := userUsecase.NewUserUseCase(userRepo)
 	boardService := boardUsecase.NewBoardUseCase(boardRepo)
-	boardMemberService := boardMemberUsecase.NewBoardMemberUseCase(boardMemberRepo)
+	boardMemberService := boardMemberUsecase.NewBoardMemberUseCase(boardRepo, boardMemberRepo)
 	boardColumnService := boardColumnUsecase.NewBoardColumnUseCase(boardColumnRepo)
-	taskService := taskUsecase.NewTaskUseCase(taskRepo)
+	taskService := taskUsecase.NewTaskUseCase(boardRepo, taskRepo)
+	assigneeService := assigneeUsecase.NewTaskAssigneeUseCase(boardRepo, assigneeRepo)
 
 	// Controllers
 	authController := controller.NewAuthController(authService)
@@ -47,6 +51,7 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 	boardMemberController := controller.NewBoardMemberController(boardMemberService)
 	boardColumnController := controller.NewBoardColumnController(boardColumnService)
 	taskController := controller.NewTaskController(taskService)
+	assigneeController := controller.NewTaskAssigneeController(assigneeService)
 	// -------------------------------------------------------------------------------
 
 	// Login
@@ -89,4 +94,10 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 	taskGroup.POST("", taskController.CreateTask, m.JWTMiddleware())
 	taskGroup.PUT("/:id", taskController.UpdateTask, m.JWTMiddleware())
 	taskGroup.DELETE("/:id", taskController.DeleteTask, m.JWTMiddleware())
+
+	// Task Assignee
+	assigneeGroup := e.Group("/task-assignees")
+	assigneeGroup.POST("/add", assigneeController.AddAssignee, m.JWTMiddleware())
+	assigneeGroup.POST("/remove", assigneeController.RemoveAssignee, m.JWTMiddleware())
+	assigneeGroup.POST("/exit", assigneeController.ExitTask, m.JWTMiddleware())
 }

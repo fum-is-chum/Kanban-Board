@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"errors"
 	"kanban-board/dto"
 	"kanban-board/model"
 
@@ -14,6 +13,8 @@ type BoardRepository interface {
 	Create(data *model.Board) error
 	Update(id uint, issuerId uint, data *dto.BoardRequest) error
 	Delete(id uint) error
+	GetBoardOwner(id uint) (*uint, error)
+	GetBoardMembers(id uint) ([]model.BoardMember, error)
 }
 
 type boardRepository struct {
@@ -52,7 +53,7 @@ func (b *boardRepository) GetById(id uint, issuerId uint) (*model.Board, error) 
 	}
 
 	var board model.Board
-	if err := b.db.Where("id = ?", id).Preload("Owner").Preload("Members").Preload("Columns.Tasks").First(&board).Error; err != nil {
+	if err := b.db.Where("id = ?", id).Preload("Owner").Preload("Members").Preload("Columns.Tasks.Assignees").First(&board).Error; err != nil {
 		return nil, err
 	}
 
@@ -84,24 +85,6 @@ func (b *boardRepository) Create(data *model.Board) error {
 }
 
 func (b *boardRepository) Update(id uint, issuerId uint, data *dto.BoardRequest) error {
-	var board model.Board
-	// get board members
-	if err := b.db.Preload("Members").Where("id = ?", id).First(&board).Error; err != nil {
-		return err
-	}
-
-	var issuerIsMember bool
-	for _, member := range board.Members {
-		if member.ID == issuerId {
-			issuerIsMember = true
-			break
-		}
-	}
-
-	if !issuerIsMember {
-		return errors.New("Issuer is not member of this board!")
-	}
-
 	tx := b.db.Model(&model.Board{}).Where("id = ?", id).Updates(&data)
 	if tx.Error != nil {
 		return tx.Error
@@ -121,4 +104,22 @@ func (b *boardRepository) Delete(id uint) error {
 	}
 
 	return nil
+}
+
+func (b *boardRepository) GetBoardOwner(id uint) (*uint, error) {
+	var board model.Board
+	if err := b.db.First(&board, id).Error; err != nil {
+		return nil, err
+	}
+
+	return &board.OwnerID, nil
+}
+
+func (b *boardRepository) GetBoardMembers(id uint) ([]model.BoardMember, error) {
+	var boardMembers []model.BoardMember
+	if err := b.db.Model(&model.BoardMember{}).Where("board_id = ?", id).Find(&boardMembers).Error; err != nil {
+		return nil, err
+	}
+
+	return boardMembers, nil
 }

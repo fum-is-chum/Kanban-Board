@@ -3,6 +3,7 @@ package usecase
 import (
 	"errors"
 	"kanban-board/dto"
+	boardRepo "kanban-board/repository/board"
 	boardMemberRepo "kanban-board/repository/board_member"
 
 	"github.com/go-playground/validator/v10"
@@ -17,13 +18,14 @@ type BoardMemberUseCase interface {
 }
 
 type boardMemberUseCase struct {
-	repo boardMemberRepo.BoardMemberRepository
+	boardRepo boardRepo.BoardRepository
+	memberRepo boardMemberRepo.BoardMemberRepository
 }
 
 // --------------------------- helper function ----------------------------
 func (b *boardMemberUseCase) isOwner(userId uint, boardId uint) error {
 	// check if user is owner of the board 
-	ownerId, err := b.repo.GetBoardOwner(boardId)
+	ownerId, err := b.boardRepo.GetBoardOwner(boardId)
 	if err != nil {
 		return err
 	}
@@ -37,7 +39,7 @@ func (b *boardMemberUseCase) isOwner(userId uint, boardId uint) error {
 
 func (b *boardMemberUseCase) isMember(userId uint, boardId uint) error {
 	// check if user is member of the board
-	members, err := b.repo.GetBoardMembers(boardId)
+	members, err := b.boardRepo.GetBoardMembers(boardId)
 	if err != nil {
 		return err
 	}
@@ -52,8 +54,8 @@ func (b *boardMemberUseCase) isMember(userId uint, boardId uint) error {
 }
 // ------------------------------------------------------------------------
 
-func NewBoardMemberUseCase(repo boardMemberRepo.BoardMemberRepository) *boardMemberUseCase {
-	return &boardMemberUseCase{repo}
+func NewBoardMemberUseCase(boardRepo boardRepo.BoardRepository, memberRepo boardMemberRepo.BoardMemberRepository) *boardMemberUseCase {
+	return &boardMemberUseCase{boardRepo, memberRepo}
 }
 
 func (b *boardMemberUseCase) AddMember(issuerId uint, data *dto.BoardMemberRequest) error {
@@ -65,7 +67,7 @@ func (b *boardMemberUseCase) AddMember(issuerId uint, data *dto.BoardMemberReque
 		return err
 	}
 
-	if err := b.repo.AddMember(data.BoardID, data.UserID); err != nil {
+	if err := b.memberRepo.AddMember(data.BoardID, data.UserID); err != nil {
 		return err
 	}
 
@@ -81,7 +83,7 @@ func (b *boardMemberUseCase) DeleteMember(issuerId uint, data *dto.BoardMemberRe
 		return err
 	}
 
-	if err := b.repo.DeleteMember(data.BoardID, data.UserID); err != nil {
+	if err := b.memberRepo.DeleteMember(data.BoardID, data.UserID); err != nil {
 		return err
 	}
 
@@ -93,7 +95,7 @@ func (b *boardMemberUseCase) ExitBoard(issuerId uint, boardId uint) error {
 		return err
 	}
 
-	if err := b.repo.DeleteMember(boardId, issuerId); err != nil {
+	if err := b.memberRepo.DeleteMember(boardId, issuerId); err != nil {
 		return err
 	}
 

@@ -71,10 +71,20 @@ func (b *boardController) GetBoardById(c echo.Context) error {
 	for _, column := range board.Columns {
 		var tasks []*dto.TaskResponse // Create a slice to store tasks for this column
 		for _, task := range column.Tasks {
+			var assignees []*dto.TaskAssigneeResponse
+			for _, assignee := range task.Assignees {
+				assignees = append(assignees, &dto.TaskAssigneeResponse{
+					ID: assignee.ID,
+					Name: assignee.Name,
+					Email: assignee.Email,
+				})
+			}
+
 			tasks = append(tasks, &dto.TaskResponse{
 				ID:    task.ID,
 				Title: task.Title,
 				Desc:  task.Desc,
+				Assignees: assignees,
 			})
 		}
 

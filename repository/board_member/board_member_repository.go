@@ -7,8 +7,6 @@ import (
 )
 
 type BoardMemberRepository interface {
-	GetBoardOwner(boardId uint) (*uint, error)
-	GetBoardMembers(boardId uint) ([]model.BoardMember, error)
 	AddMember(boardId uint, userId uint) error
 	DeleteMember(boardId uint, userId uint) error
 }
@@ -19,24 +17,6 @@ type boardMemberRepository struct {
 
 func NewBoardMemberRepository(db *gorm.DB) *boardMemberRepository {
 	return &boardMemberRepository{db}
-}
-
-func (b *boardMemberRepository) GetBoardOwner(boardId uint) (*uint, error) {
-	var board model.Board
-	if err := b.db.First(&board, boardId).Error; err != nil {
-		return nil, err
-	}
-
-	return &board.OwnerID, nil
-}
-
-func (b *boardMemberRepository) GetBoardMembers(boardId uint) ([]model.BoardMember, error) {
-	var boardMembers []model.BoardMember
-	if err := b.db.Model(&model.BoardMember{}).Where("board_id = ?", boardId).Find(&boardMembers).Error; err != nil {
-		return nil, err
-	}
-
-	return boardMembers, nil
 }
 
 func (b *boardMemberRepository) AddMember(boardId uint, userId uint) error {
