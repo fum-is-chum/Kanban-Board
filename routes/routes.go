@@ -38,7 +38,7 @@ func InitRouter(e *echo.Echo, db *gorm.DB) {
 	boardService := boardUsecase.NewBoardUseCase(boardRepo)
 	boardMemberService := boardMemberUsecase.NewBoardMemberUseCase(boardRepo, boardMemberRepo)
 	boardColumnService := boardColumnUsecase.NewBoardColumnUseCase(boardColumnRepo)
-	taskService := taskUsecase.NewTaskUseCase(taskRepo)
+	taskService := taskUsecase.NewTaskUseCase(boardRepo, taskRepo)
 
 	// Controllers
 	authController := controller.NewAuthController(authService)
