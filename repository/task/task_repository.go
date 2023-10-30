@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"errors"
 	"kanban-board/dto"
 	"kanban-board/model"
 
@@ -53,29 +52,6 @@ func (t *taskRepository) Create(issuerId uint, data *model.Task) error {
 }
 
 func (t *taskRepository) Update(id uint, issuerId uint, data *dto.TaskUpdateRequest) error {
-	// check member status
-	var column model.BoardColumn
-	var board model.Board
-	if err := t.db.First(&column, data.BoardColumnID).Error; err != nil {
-		return err
-	}
-
-	if err := t.db.Preload("Members").Where("id = ?", column.BoardID).Find(&board).Error; err != nil {
-		return nil
-	}
-
-	var issuerIsMember bool
-	for _, member := range board.Members {
-		if member.ID == issuerId {
-			issuerIsMember = true
-			break
-		}
-	}
-
-	if !issuerIsMember {
-		return errors.New("Issuer is not member of this board!")
-	}
-
 	// update
 	if err := t.db.Model(&model.Task{}).Where("id =  ?", id).Updates(data).Error; err != nil {
 		return err
@@ -85,29 +61,6 @@ func (t *taskRepository) Update(id uint, issuerId uint, data *dto.TaskUpdateRequ
 }
 
 func (t *taskRepository) Delete(id uint, issuerId uint) error {
-	var column model.BoardColumn
-	var board model.Board
-
-	if err := t.db.Where(&model.BoardColumn{}, id).First(&column).Error; err != nil {
-		return err
-	}
-
-	if err := t.db.Preload("Members").Where("id = ?", column.BoardID).Find(&board).Error; err != nil {
-		return nil
-	}
-
-	var issuerIsMember bool
-	for _, member := range board.Members {
-		if member.ID == issuerId {
-			issuerIsMember = true
-			break
-		}
-	}
-
-	if !issuerIsMember {
-		return errors.New("Issuer is not member of this board!")
-	}
-
 	if err := t.db.Unscoped().Delete(&model.Task{}, id).Error; err != nil {
 		return err
 	}
