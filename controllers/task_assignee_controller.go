@@ -61,5 +61,5 @@ func (t *taskAssigneeController) ExitTask(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, responseHelper.FailedResponse(fmt.Sprintf("Error: %s", err.Error())))
 	}
 
-	return c.JSON(http.StatusOK, responseHelper.SuccessResponse("Success exit from task"))	
+	return c.JSON(http.StatusOK, responseHelper.SuccessResponse("Success exit from task"))
 }

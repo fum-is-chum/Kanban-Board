@@ -67,7 +67,6 @@ func TestIsMember(t *testing.T) {
 	})
 }
 
-
 func TestGetBoards(t *testing.T) {
 	returnData := []model.Board{
 		{Name: "board1", Desc: "Board number 1", OwnerID: 0},

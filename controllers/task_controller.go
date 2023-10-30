@@ -60,19 +60,18 @@ func (t *taskController) GetTaskById(c echo.Context) error {
 	var assignees []*dto.TaskAssigneeResponse
 	for _, assignee := range task.Assignees {
 		assignees = append(assignees, &dto.TaskAssigneeResponse{
-			ID: assignee.ID,
-			Name: assignee.Name,
+			ID:    assignee.ID,
+			Name:  assignee.Name,
 			Email: assignee.Email,
 		})
 	}
-	
 
 	return c.JSON(http.StatusOK, responseHelper.SuccessWithDataResponse(fmt.Sprintf("Success Get Task with id %d", id), &dto.TaskResponse{
 		ID:            task.ID,
 		Title:         task.Title,
 		Desc:          task.Desc,
 		BoardColumnID: task.BoardColumnID,
-		Assignees: assignees,
+		Assignees:     assignees,
 	}))
 }
 

@@ -74,16 +74,16 @@ func (b *boardController) GetBoardById(c echo.Context) error {
 			var assignees []*dto.TaskAssigneeResponse
 			for _, assignee := range task.Assignees {
 				assignees = append(assignees, &dto.TaskAssigneeResponse{
-					ID: assignee.ID,
-					Name: assignee.Name,
+					ID:    assignee.ID,
+					Name:  assignee.Name,
 					Email: assignee.Email,
 				})
 			}
 
 			tasks = append(tasks, &dto.TaskResponse{
-				ID:    task.ID,
-				Title: task.Title,
-				Desc:  task.Desc,
+				ID:        task.ID,
+				Title:     task.Title,
+				Desc:      task.Desc,
 				Assignees: assignees,
 			})
 		}

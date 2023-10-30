@@ -295,7 +295,7 @@ func TestExitBoard(t *testing.T) {
 		mockBoardRepo.AssertExpectations(t)
 	})
 
-  	t.Run("Failed exit board (Internal Server Error)", func(t *testing.T) {
+	t.Run("Failed exit board (Internal Server Error)", func(t *testing.T) {
 		expectedErr := errors.New("Internal Server Error")
 		mockBoardRepo := boardRepo.NewMockBoardRepo()
 		mockMemberRepo := memberRepo.NewMockBoardMemberRepo()

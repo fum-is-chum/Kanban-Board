@@ -18,13 +18,13 @@ type BoardMemberUseCase interface {
 }
 
 type boardMemberUseCase struct {
-	boardRepo boardRepo.BoardRepository
+	boardRepo  boardRepo.BoardRepository
 	memberRepo boardMemberRepo.BoardMemberRepository
 }
 
 // --------------------------- helper function ----------------------------
 func (b *boardMemberUseCase) isOwner(userId uint, boardId uint) error {
-	// check if user is owner of the board 
+	// check if user is owner of the board
 	ownerId, err := b.boardRepo.GetBoardOwner(boardId)
 	if err != nil {
 		return err
@@ -52,6 +52,7 @@ func (b *boardMemberUseCase) isMember(userId uint, boardId uint) error {
 
 	return errors.New("User is not member of this board!")
 }
+
 // ------------------------------------------------------------------------
 
 func NewBoardMemberUseCase(boardRepo boardRepo.BoardRepository, memberRepo boardMemberRepo.BoardMemberRepository) *boardMemberUseCase {

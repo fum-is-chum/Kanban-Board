@@ -38,8 +38,8 @@ func (b *boardUseCase) isMember(userId uint, boardId uint) error {
 
 	return errors.New("User is not member of this board!")
 }
-// ------------------------------------------------------------------------
 
+// ------------------------------------------------------------------------
 
 func NewBoardUseCase(repo boardRepo.BoardRepository) *boardUseCase {
 	return &boardUseCase{repo}
@@ -87,7 +87,7 @@ func (b *boardUseCase) UpdateBoard(id uint, issuerId uint, data *dto.BoardReques
 	if err := b.isMember(issuerId, id); err != nil {
 		return err
 	}
-	
+
 	updatedData := &dto.BoardRequest{
 		Name: data.Name,
 		Desc: data.Desc,

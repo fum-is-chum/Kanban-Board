@@ -420,7 +420,7 @@ func TestDeleteTask(t *testing.T) {
 		mockBoardRepo.On("GetBoardMembers", boardId).Return(mockMembersData, nil).Once()
 		mockTaskRepo.On("GetBoardIdByTaskId", mockTasksData[0].ID).Return(&boardId, nil).Once()
 		mockTaskRepo.On("Delete", mockTasksData[0].ID, issuerId).Return(nil).Once()
-		
+
 		service := NewTaskUseCase(mockBoardRepo, mockTaskRepo)
 		err := service.DeleteTask(mockTasksData[0].ID, issuerId)
 
@@ -435,7 +435,7 @@ func TestDeleteTask(t *testing.T) {
 		mockTaskRepo := taskRepo.NewMockTaskRepo()
 		mockTaskRepo.On("GetBoardIdByTaskId", mockTasksData[0].ID).Return(&boardId, nil).Once()
 		mockBoardRepo.On("GetBoardMembers", uint(1)).Return(nil, expectedErr).Once()
-		
+
 		service := NewTaskUseCase(mockBoardRepo, mockTaskRepo)
 		err := service.DeleteTask(mockTasksData[0].ID, issuerId)
 
