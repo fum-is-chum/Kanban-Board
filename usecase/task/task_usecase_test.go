@@ -450,6 +450,20 @@ func TestDeleteTask(t *testing.T) {
 
 		mockBoardRepo := boardRepo.NewMockBoardRepo()
 		mockTaskRepo := taskRepo.NewMockTaskRepo()
+		mockTaskRepo.On("GetBoardIdByTaskId", mockTasksData[0].ID).Return(nil, expectedErr).Once()
+
+		service := NewTaskUseCase(mockBoardRepo, mockTaskRepo)
+		err := service.DeleteTask(mockTasksData[0].ID, issuerId)
+
+		assert.Error(t, err)
+		mockBoardRepo.AssertExpectations(t)
+		mockTaskRepo.AssertExpectations(t)
+	})
+	t.Run("Failed Delete Task (Internal Server Error)", func(t *testing.T) {
+		expectedErr := errors.New("Internal Server Error")
+
+		mockBoardRepo := boardRepo.NewMockBoardRepo()
+		mockTaskRepo := taskRepo.NewMockTaskRepo()
 		mockTaskRepo.On("GetBoardIdByTaskId", mockTasksData[0].ID).Return(&boardId, nil).Once()
 		mockBoardRepo.On("GetBoardMembers", boardId).Return(nil, expectedErr).Once()
 
